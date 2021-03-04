@@ -1,0 +1,46 @@
+﻿@model IEnumerable<ToDoApp.Models.Task>
+
+@{
+    ViewBag.Title = "Tasks";
+}
+
+<h2>Tasks</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Objective)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Finished)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ClosingDate)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.Objective)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Finished)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.ClosingDate)
+    </td>
+    <td>
+        @Html.ActionLink("Edit", "Edit", new { id = item.TaskId }) |
+        @Html.ActionLink("Details", "Details", new { id = item.TaskId }) |
+        @Html.ActionLink("Delete", "Delete", new { id = item.TaskId })
+    </td>
+</tr>
+    }
+</table>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
