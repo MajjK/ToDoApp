@@ -22,6 +22,34 @@ namespace ToDoApp.Controllers
             return View(await DbContext.Tasks.ToListAsync());
         }
 
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(
+            [Bind("Objective, Description, ClosingDate")] ToDoApp.Models.Task task)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    DbContext.Add(task);
+                    await DbContext.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator.");
+            }
+            return View(task);
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -42,29 +70,89 @@ namespace ToDoApp.Controllers
             return View(task);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(ToDoApp.Models.Task task)
-        {
-            if (ModelState.IsValid)
+            if (id == null)
             {
-                DbContext.Tasks.Add(task);
-                DbContext.SaveChanges();
-                return RedirectToAction("Index");
+                return NotFound();
             }
 
+            var task = await DbContext.Tasks.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
             return View(task);
         }
 
-        public ActionResult Edit(int? id)
+        [HttpPost, ActionName("Edit")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPost(int? id)
         {
-            ToDoApp.Models.Task task = DbContext.Tasks.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var taskToUpdate = await DbContext.Tasks.FirstOrDefaultAsync(s => s.TaskId == id);
+            if (await TryUpdateModelAsync<ToDoApp.Models.Task>(taskToUpdate, "",
+                s => s.Objective, s => s.Description, s => s.AdditionDate, s => s.ClosingDate, s => s.Finished))
+            {
+                try
+                {
+                    await DbContext.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists, " +
+                        "see your system administrator.");
+                }
+            }
+            return View(taskToUpdate);
+        }
+
+        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var task = await DbContext.Tasks.AsNoTracking().FirstOrDefaultAsync(s => s.TaskId == id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+            if (saveChangesError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] =
+                    "Delete failed. Try again, and if the problem persists " +
+                    "see your system administrator.";
+            }
             return View(task);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var task = await DbContext.Tasks.FindAsync(id);
+            if (task == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                DbContext.Tasks.Remove(task);
+                await DbContext.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
+            }
         }
     }
 }
