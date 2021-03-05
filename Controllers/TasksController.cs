@@ -21,6 +21,13 @@ namespace ToDoApp.Controllers
             return View(_context.Tasks.ToList());
         }
 
+        public ActionResult Details(int? id)
+        {
+            // Obsługa błędów id/task == null
+            ToDoApp.Models.Task task = _context.Tasks.Find(id);
+            return View(task);
+        }
+
         public IActionResult Create()
         {
             return View();
