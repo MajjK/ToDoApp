@@ -1,5 +1,4 @@
 ﻿@model ToDoApp.Models.Task
-
 @{
     ViewBag.Title = "Details";
 }
@@ -47,14 +46,6 @@
 
         <dd>
             @Html.DisplayFor(model => model.Finished)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.User.Login)
         </dd>
 
     </dl>
