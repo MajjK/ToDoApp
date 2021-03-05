@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,22 +10,35 @@ namespace ToDoApp.Controllers
 {
     public class TasksController : Controller
     {
-        private ToDoDatabaseContext _context;
+        private ToDoDatabaseContext DbContext;
 
         public TasksController(ToDoDatabaseContext context)
         {
-            _context = context;
+            DbContext = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(_context.Tasks.ToList());
+            return View(await DbContext.Tasks.ToListAsync());
         }
 
-        public ActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
-            // Obsługa błędów id/task == null
-            ToDoApp.Models.Task task = _context.Tasks.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var task = await DbContext.Tasks
+                .Include(s => s.User)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.TaskId == id);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
             return View(task);
         }
 
@@ -39,11 +53,17 @@ namespace ToDoApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Tasks.Add(task);
-                _context.SaveChanges();
+                DbContext.Tasks.Add(task);
+                DbContext.SaveChanges();
                 return RedirectToAction("Index");
             }
 
+            return View(task);
+        }
+
+        public ActionResult Edit(int? id)
+        {
+            ToDoApp.Models.Task task = DbContext.Tasks.Find(id);
             return View(task);
         }
     }

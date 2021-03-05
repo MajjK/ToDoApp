@@ -29,6 +29,7 @@ namespace ToDoApp
         {
             services.AddControllersWithViews();
             services.AddDbContext<ToDoDatabaseContext>(options => options.UseNpgsql(this.Configuration["ToDoDatabase"]));
+            services.AddDatabaseDeveloperPageExceptionFilter();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
