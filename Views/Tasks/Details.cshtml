@@ -6,53 +6,55 @@
 <h2>Details</h2>
 
 <div>
+    <h4>Task</h4>
     <hr />
-    <dl class="dl-horizontal">
-        <dt>
+    <dl class="row">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.User)
         </dt>
-
-        <dd>
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.User.Login)
         </dd>
 
-        <dt>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Objective)
         </dt>
-
-        <dd>
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Objective)
         </dd>
 
-        <dt>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Description)
+        <dd class="col-sm-10">
+            @if (Model.Description != null)
+            {
+                @Html.DisplayFor(model => model.Description)
+            }
+            else
+            {
+                <br />
+            }
         </dd>
 
-        <dt>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.AdditionDate)
         </dt>
-
-        <dd>
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.AdditionDate)
         </dd>
 
-        <dt>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ClosingDate)
         </dt>
-
-        <dd>
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ClosingDate)
         </dd>
 
-        <dt>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Finished)
         </dt>
-
-        <dd>
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Finished)
         </dd>
 

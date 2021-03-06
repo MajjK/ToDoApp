@@ -1,7 +1,7 @@
 ﻿@model ToDoApp.Models.Task
 
 @{
-    ViewBag.Title = "New Task";
+    ViewBag.Title = "Create";
 }
 
 <h2>Create</h2>
@@ -42,13 +42,11 @@
 
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Create" class="btn btn-default" />
+            <input type="submit" value="Create" class="btn btn-primary" />
         </div>
     </div>
 </div>
 }
-
-
 
 <div>
     @Html.ActionLink("Back to List", "Index")

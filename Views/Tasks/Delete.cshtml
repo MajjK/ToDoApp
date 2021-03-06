@@ -4,9 +4,8 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<h2>Delete</h2>
 <p class="text-danger">@ViewData["ErrorMessage"]</p>
-<h3>Are you sure you want to delete this?</h3>
 <div>
     <h4>Task</h4>
     <hr />
@@ -33,7 +32,11 @@
 
     <form asp-action="Delete">
         <input type="hidden" asp-for="TaskId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Delete" class="btn btn-danger" />
     </form>
+</div>
+
+<div>
+    <br />
+    @Html.ActionLink("Back to List", "Index")
 </div>
