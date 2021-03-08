@@ -22,5 +22,32 @@ namespace ToDoApp.Controllers
             return View(await DbContext.Users.Include(s => s.Tasks).ToListAsync());
         }
 
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Login, Password")] User user)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    DbContext.Add(user);
+                    await DbContext.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator.");
+            }
+            return View(user);
+        }
+
     }
 }

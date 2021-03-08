@@ -12,10 +12,10 @@
             @Html.DisplayNameFor(model => model.Objective)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Finished)
+            @Html.DisplayNameFor(model => model.ClosingDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ClosingDate)
+            @Html.DisplayNameFor(model => model.Finished)
         </th>
         <th></th>
     </tr>
@@ -27,10 +27,10 @@
         @Html.DisplayFor(modelItem => item.Objective)
     </td>
     <td>
-        @Html.DisplayFor(modelItem => item.Finished)
+        @Html.DisplayFor(modelItem => item.ClosingDate)
     </td>
     <td>
-        @Html.DisplayFor(modelItem => item.ClosingDate)
+        @Html.DisplayFor(modelItem => item.Finished)
     </td>
     <td>
         @Html.ActionLink("Edit", "Edit", new { id = item.TaskId }) |

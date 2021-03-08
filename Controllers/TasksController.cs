@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ToDoApp.Models;
 using Microsoft.EntityFrameworkCore;
+// Pozostawianie Zmian w User/Task po wygenerowaniu nowego modelu
 
 namespace ToDoApp.Controllers
 {
@@ -29,8 +30,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("Objective, Description, ClosingDate")] ToDoApp.Models.Task task)
+        public async Task<IActionResult> Create([Bind("Objective, Description, ClosingDate")] ToDoApp.Models.Task task)
         {
             try
             {
