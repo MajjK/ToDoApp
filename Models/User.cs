@@ -14,7 +14,9 @@ namespace ToDoApp.Models
         }
 
         public int UserId { get; set; }
+        [StringLength(50)]
         public string Login { get; set; }
+        [StringLength(50)]
         public string Password { get; set; }
         [Display(Name = "Addition Date")]
         public DateTime? AdditionDate { get; set; }

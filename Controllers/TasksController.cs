@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ToDoApp.Models;
 using Microsoft.EntityFrameworkCore;
-// Pozostawianie Zmian w User/Task po wygenerowaniu nowego modelu
 
 namespace ToDoApp.Controllers
 {
