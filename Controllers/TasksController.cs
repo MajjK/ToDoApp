@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,9 +18,32 @@ namespace ToDoApp.Controllers
             DbContext = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
-            return View(await DbContext.Tasks.ToListAsync());
+            ViewData["FinishSortParm"] = String.IsNullOrEmpty(sortOrder) ? "finish" : "";
+            ViewData["DateSortParm"] = sortOrder == "date" ? "date_desc" : "date";
+            ViewData["CurrentFilter"] = searchString;
+
+            var tasks = from s in DbContext.Tasks
+                        select s;
+            if (!String.IsNullOrEmpty(searchString))
+                tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.ToString().Contains(searchString));//Problem z data
+            switch (sortOrder)
+            {
+                case "finish":
+                    tasks = tasks.OrderBy(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+                case "date":
+                    tasks = tasks.OrderBy(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                case "date_desc":
+                    tasks = tasks.OrderByDescending(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                default:
+                    tasks = tasks.OrderByDescending(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+            }
+            return View(await tasks.AsNoTracking().ToListAsync());
         }
 
         public IActionResult Create()
