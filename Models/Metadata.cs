@@ -7,27 +7,28 @@ namespace ToDoApp.Models
     {
         [Display(Name = "Task")]
         [StringLength(255)]
-        public string Objective;
+        public string Objective { get; set; }
 
         [StringLength(255)]
-        public string Description;
+        public string Description { get; set; }
 
         [Display(Name = "Addition Date")]
-        public DateTime? AdditionDate;
+        public DateTime? AdditionDate { get; set; }
 
         [Display(Name = "Closing Date")]
-        public DateTime? ClosingDate;
+        public DateTime? ClosingDate { get; set; }
+
     }
 
     public class UserMetadata
     {
         [StringLength(50)]
-        public string Login;
+        public string Login { get; set; }
 
         [StringLength(50)]
-        public string Password;
+        public string Password { get; set; }
 
         [Display(Name = "Addition Date")]
-        public DateTime? AdditionDate;
+        public DateTime? AdditionDate { get; set; }
     }
 }

@@ -28,7 +28,7 @@ namespace ToDoApp.Models
 
                 entity.Property(e => e.AdditionDate)
                     .HasColumnName("addition_date")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("date_trunc('minute'::text, CURRENT_TIMESTAMP)");
 
                 entity.Property(e => e.ClosingDate).HasColumnName("closing_date");
 
@@ -36,9 +36,7 @@ namespace ToDoApp.Models
                     .HasMaxLength(255)
                     .HasColumnName("description");
 
-                entity.Property(e => e.Finished)
-                    .HasColumnName("finished")
-                    .HasDefaultValueSql("false");
+                entity.Property(e => e.Finished).HasColumnName("finished");
 
                 entity.Property(e => e.Objective)
                     .IsRequired()
@@ -57,13 +55,16 @@ namespace ToDoApp.Models
 
             modelBuilder.Entity<User>(entity =>
             {
+                entity.HasIndex(e => e.Login, "Users_login_key")
+                    .IsUnique();
+
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
                     .HasDefaultValueSql("nextval('operator_operator_id_seq'::regclass)");
 
                 entity.Property(e => e.AdditionDate)
                     .HasColumnName("addition_date")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("date_trunc('minute'::text, CURRENT_TIMESTAMP)");
 
                 entity.Property(e => e.Login)
                     .IsRequired()

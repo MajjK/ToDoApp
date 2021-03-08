@@ -1,15 +1,16 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ToDoApp.Models
 {
-    [MetadataType(typeof(TaskMetadata))]
+    [ModelMetadataType(typeof(TaskMetadata))]
     public partial class Task
     {
     }
 
-    [MetadataType(typeof(UserMetadata))]
+    [ModelMetadataType(typeof(UserMetadata))]
     public partial class User
     {
     }
+
 }
