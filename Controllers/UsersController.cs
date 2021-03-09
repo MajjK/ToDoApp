@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ToDoApp.Models;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
 
 namespace ToDoApp.Controllers
 {
@@ -17,9 +18,21 @@ namespace ToDoApp.Controllers
             DbContext = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
-            return View(await DbContext.Users.Include(s => s.Tasks).ToListAsync());
+            ViewData["LoginSortParm"] = String.IsNullOrEmpty(sortOrder) ? "login" : "";
+            ViewData["DateSortParm"] = sortOrder == "date" ? "date_desc" : "date";
+            ViewData["TasksSortParm"] = sortOrder == "tasks" ? "tasks_desc" : "tasks";
+            if (searchString != null)
+                page = 1;
+            else
+                searchString = currentFilter;
+            ViewData["CurrentFilter"] = searchString;
+
+            var users = this.GetSortedUsers(sortOrder, searchString);
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return View(await users.Include(s => s.Tasks).AsNoTracking().ToPagedListAsync(pageNumber, pageSize));
         }
 
         public IActionResult Create()
@@ -152,6 +165,36 @@ namespace ToDoApp.Controllers
             {
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
+        }
+
+        private IQueryable<User> GetSortedUsers(string sortOrder, string searchString)
+        {
+            var users = from s in DbContext.Users
+                        select s;
+            if (!String.IsNullOrEmpty(searchString))
+                users = users.Where(s => s.Login.Contains(searchString));
+            switch (sortOrder)
+            {
+                case "login":
+                    users = users.OrderBy(s => s.Login);
+                    break;
+                case "date":
+                    users = users.OrderBy(s => s.AdditionDate);
+                    break;
+                case "date_desc":
+                    users = users.OrderByDescending(s => s.AdditionDate);
+                    break;
+                case "tasks":
+                    users = users.OrderBy(s => s.Tasks.Count);
+                    break;
+                case "tasks_desc":
+                    users = users.OrderByDescending(s => s.Tasks.Count);
+                    break;
+                default:
+                    users = users.OrderByDescending(s => s.Login);
+                    break;
+            }
+            return users;
         }
     }
 }

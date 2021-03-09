@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ToDoApp.Models;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
 
 namespace ToDoApp.Controllers
 {
@@ -18,32 +18,21 @@ namespace ToDoApp.Controllers
             DbContext = context;
         }
 
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
             ViewData["FinishSortParm"] = String.IsNullOrEmpty(sortOrder) ? "finish" : "";
+            ViewData["ObjectiveSortParm"] = sortOrder == "objective" ? "objective_desc" : "objective";
             ViewData["DateSortParm"] = sortOrder == "date" ? "date_desc" : "date";
+            if (searchString != null)
+                page = 1;
+            else
+                searchString = currentFilter;
             ViewData["CurrentFilter"] = searchString;
 
-            var tasks = from s in DbContext.Tasks
-                        select s;
-            if (!String.IsNullOrEmpty(searchString))
-                tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.ToString().Contains(searchString));//Problem z data
-            switch (sortOrder)
-            {
-                case "finish":
-                    tasks = tasks.OrderBy(s => s.Finished).ThenBy(s => s.ClosingDate);
-                    break;
-                case "date":
-                    tasks = tasks.OrderBy(s => s.ClosingDate).ThenByDescending(s => s.Finished);
-                    break;
-                case "date_desc":
-                    tasks = tasks.OrderByDescending(s => s.ClosingDate).ThenByDescending(s => s.Finished);
-                    break;
-                default:
-                    tasks = tasks.OrderByDescending(s => s.Finished).ThenBy(s => s.ClosingDate);
-                    break;
-            }
-            return View(await tasks.AsNoTracking().ToListAsync());
+            var tasks = this.GetSortedTasks(sortOrder, searchString);
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return View(await tasks.AsNoTracking().ToPagedListAsync(pageNumber, pageSize));
         }
 
         public IActionResult Create()
@@ -89,7 +78,6 @@ namespace ToDoApp.Controllers
             {
                 return NotFound();
             }
-
             return View(task);
         }
 
@@ -176,6 +164,36 @@ namespace ToDoApp.Controllers
             {
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
+        }
+
+        private IQueryable<ToDoApp.Models.Task> GetSortedTasks(string sortOrder, string searchString)
+        {
+            var tasks = from s in DbContext.Tasks
+                        select s;
+            if (!String.IsNullOrEmpty(searchString))
+                tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.ToString().Contains(searchString));//Problem z data
+            switch (sortOrder)
+            {
+                case "finish":
+                    tasks = tasks.OrderBy(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+                case "objective":
+                    tasks = tasks.OrderBy(s => s.Objective);
+                    break;
+                case "objective_desc":
+                    tasks = tasks.OrderByDescending(s => s.Objective);
+                    break;
+                case "date":
+                    tasks = tasks.OrderBy(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                case "date_desc":
+                    tasks = tasks.OrderByDescending(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                default:
+                    tasks = tasks.OrderByDescending(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+            }
+            return tasks;
         }
     }
 }

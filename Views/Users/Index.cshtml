@@ -1,4 +1,6 @@
-﻿@model IEnumerable<ToDoApp.Models.User>
+﻿@model X.PagedList.IPagedList<ToDoApp.Models.User>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Mvc.Core.Common;
 
 @{
     ViewBag.Title = "Users";
@@ -8,16 +10,29 @@
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-light" /> |
+            <a asp-action="Index">Back to List</a>
+        </p>
+    </div>
+</form>
+
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Login)
+            <a asp-action="Index" asp-route-sortOrder="@ViewData["LoginSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+            @Html.DisplayNameFor(model => model.First().Login)</a>
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.AdditionDate)
+            <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+            @Html.DisplayNameFor(model => model.First().AdditionDate)</a>
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Tasks)
+            <a asp-action="Index" asp-route-sortOrder="@ViewData["TasksSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+            @Html.DisplayNameFor(model => model.First().Tasks)</a>
         </th>
         <th></th>
     </tr>
@@ -42,3 +57,7 @@
         </tr>
     }
 </table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }),
+                    new PagedListRenderOptions { LiElementClasses = new string[] { "page-item" }, PageClasses = new string[] { "page-link" } })
