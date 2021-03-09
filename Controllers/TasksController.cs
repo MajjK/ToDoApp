@@ -6,16 +6,39 @@ using System.Threading.Tasks;
 using ToDoApp.Models;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
+using Newtonsoft.Json;
 
 namespace ToDoApp.Controllers
 {
     public class TasksController : Controller
     {
         private ToDoDatabaseContext DbContext;
+        public int DbUserId;
 
         public TasksController(ToDoDatabaseContext context)
         {
             DbContext = context;
+        }
+
+        public IActionResult Home()
+        {
+            return View();
+        }
+
+
+        public async Task<IActionResult> Home(User user)
+        {
+            try
+            {
+                User logged_user = await DbContext.Users.Where(s => s.Login == user.Login && s.Password == user.Password).SingleOrDefaultAsync();
+                this.DbUserId = logged_user.UserId;
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Wrong login or password");
+            }
+            return View();
         }
 
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
@@ -30,6 +53,7 @@ namespace ToDoApp.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var tasks = this.GetSortedTasks(sortOrder, searchString);
+            //var tasks = this.GetSortedTasks(sortOrder, searchString).Where(s => s.UserId == DbUser.UserId);
             int pageSize = 10;
             int pageNumber = (page ?? 1);
             return View(await tasks.AsNoTracking().ToPagedListAsync(pageNumber, pageSize));
