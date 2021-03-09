@@ -171,7 +171,12 @@ namespace ToDoApp.Controllers
             var tasks = from s in DbContext.Tasks
                         select s;
             if (!String.IsNullOrEmpty(searchString))
-                tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.ToString().Contains(searchString));//Problem z data
+            {
+                if (DateTime.TryParse(searchString, out DateTime check_date))
+                    tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.Date.Equals(check_date));
+                else
+                    tasks = tasks.Where(s => s.Objective.Contains(searchString));
+            } 
             switch (sortOrder)
             {
                 case "finish":

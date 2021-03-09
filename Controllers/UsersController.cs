@@ -172,7 +172,10 @@ namespace ToDoApp.Controllers
             var users = from s in DbContext.Users
                         select s;
             if (!String.IsNullOrEmpty(searchString))
-                users = users.Where(s => s.Login.Contains(searchString));
+                if (DateTime.TryParse(searchString, out DateTime check_date))
+                    users = users.Where(s => s.Login.Contains(searchString) || s.AdditionDate.Value.Date.Equals(check_date));
+                else
+                    users = users.Where(s => s.Login.Contains(searchString));
             switch (sortOrder)
             {
                 case "login":
