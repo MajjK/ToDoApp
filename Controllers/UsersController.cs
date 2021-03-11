@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ToDoApp.Models;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
+using ToDoApp.DB;
 
 namespace ToDoApp.Controllers
 {
@@ -18,6 +19,7 @@ namespace ToDoApp.Controllers
             DbContext = context;
         }
 
+        /*
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
             ViewData["LoginSortParm"] = String.IsNullOrEmpty(sortOrder) ? "login_desc" : "";
@@ -199,5 +201,6 @@ namespace ToDoApp.Controllers
             }
             return users;
         }
+        */
     }
 }

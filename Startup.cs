@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ToDoApp.Models;
+using ToDoApp.DB;
 using Microsoft.EntityFrameworkCore;
 //Scaffold-DbContext "User ID=postgres;Password=postgres;Host=localhost;Port=5432;Database=ToDoDatabase;" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models
 
@@ -30,6 +30,7 @@ namespace ToDoApp
             services.AddControllersWithViews();
             services.AddDbContext<ToDoDatabaseContext>(options => options.UseNpgsql(this.Configuration["ToDoDatabase"]));
             services.AddDatabaseDeveloperPageExceptionFilter();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,7 +57,7 @@ namespace ToDoApp
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Tasks}/{action=Home}/{id?}");
+                    pattern: "{controller=Tasks}/{action=Index}/{id?}");
             });
         }
     }

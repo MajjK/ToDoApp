@@ -3,43 +3,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ToDoApp.Models;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
-using Newtonsoft.Json;
+using AutoMapper;
+using ToDoApp.DB;
+using ToDoApp.ViewModel;
 
 namespace ToDoApp.Controllers
 {
+    public class Profiles : Profile
+    {
+        public Profiles()
+        {
+            CreateMap<DB.Model.DbTask, ViewModel.Tasks.TaskViewModel>();
+        }
+    }
+
     public class TasksController : Controller
     {
         private ToDoDatabaseContext DbContext;
-        public int DbUserId;
+        private readonly IMapper _mapper;
 
-        public TasksController(ToDoDatabaseContext context)
+        public TasksController(ToDoDatabaseContext context, IMapper mapper)
         {
             DbContext = context;
-        }
-
-        public IActionResult Home()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Home(User user)
-        {
-            try
-            {
-                User logged_user = await DbContext.Users.Where(s => s.Login == user.Login && s.Password == user.Password).SingleOrDefaultAsync();
-                this.DbUserId = logged_user.UserId;
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                ModelState.AddModelError("", "Wrong login or password");
-            }
-            return View();
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
@@ -54,13 +42,55 @@ namespace ToDoApp.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var tasks = this.GetSortedTasks(sortOrder, searchString);
-            tasks = tasks.Where(s => s.UserId == 1);
-            //var tasks = this.GetSortedTasks(sortOrder, searchString).Where(s => s.UserId == DbUser.UserId);
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-            return View(await tasks.AsNoTracking().ToPagedListAsync(pageNumber, pageSize));
+
+            List<ViewModel.Tasks.TaskViewModel> tasksViewModel = new List<ViewModel.Tasks.TaskViewModel>();
+            foreach (var item in tasks)
+            {
+                ViewModel.Tasks.TaskViewModel taskViewModel = _mapper.Map<ViewModel.Tasks.TaskViewModel>(item);
+                tasksViewModel.Add(taskViewModel);
+            }
+
+            return View(await tasksViewModel.ToPagedListAsync(pageNumber, pageSize));
         }
 
+        private IQueryable<ToDoApp.DB.Model.DbTask> GetSortedTasks(string sortOrder, string searchString)
+        {
+            var tasks = from s in DbContext.Tasks
+                        select s;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                if (DateTime.TryParse(searchString, out DateTime check_date))
+                    tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.Date.Equals(check_date));
+                else
+                    tasks = tasks.Where(s => s.Objective.Contains(searchString));
+            }
+            switch (sortOrder)
+            {
+                case "finish":
+                    tasks = tasks.OrderBy(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+                case "objective":
+                    tasks = tasks.OrderBy(s => s.Objective);
+                    break;
+                case "objective_desc":
+                    tasks = tasks.OrderByDescending(s => s.Objective);
+                    break;
+                case "date":
+                    tasks = tasks.OrderBy(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                case "date_desc":
+                    tasks = tasks.OrderByDescending(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                default:
+                    tasks = tasks.OrderByDescending(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+            }
+            return tasks;
+        }
+
+        /*
         public IActionResult Create()
         {
             return View();
@@ -191,40 +221,6 @@ namespace ToDoApp.Controllers
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
         }
-
-        private IQueryable<ToDoApp.Models.Task> GetSortedTasks(string sortOrder, string searchString)
-        {
-            var tasks = from s in DbContext.Tasks
-                        select s;
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                if (DateTime.TryParse(searchString, out DateTime check_date))
-                    tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.Date.Equals(check_date));
-                else
-                    tasks = tasks.Where(s => s.Objective.Contains(searchString));
-            } 
-            switch (sortOrder)
-            {
-                case "finish":
-                    tasks = tasks.OrderBy(s => s.Finished).ThenBy(s => s.ClosingDate);
-                    break;
-                case "objective":
-                    tasks = tasks.OrderBy(s => s.Objective);
-                    break;
-                case "objective_desc":
-                    tasks = tasks.OrderByDescending(s => s.Objective);
-                    break;
-                case "date":
-                    tasks = tasks.OrderBy(s => s.ClosingDate).ThenByDescending(s => s.Finished);
-                    break;
-                case "date_desc":
-                    tasks = tasks.OrderByDescending(s => s.ClosingDate).ThenByDescending(s => s.Finished);
-                    break;
-                default:
-                    tasks = tasks.OrderByDescending(s => s.Finished).ThenBy(s => s.ClosingDate);
-                    break;
-            }
-            return tasks;
-        }
+        */
     }
 }
