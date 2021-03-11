@@ -20,7 +20,7 @@ namespace ToDoApp.Controllers
 
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
-            ViewData["LoginSortParm"] = String.IsNullOrEmpty(sortOrder) ? "login" : "";
+            ViewData["LoginSortParm"] = String.IsNullOrEmpty(sortOrder) ? "login_desc" : "";
             ViewData["DateSortParm"] = sortOrder == "date" ? "date_desc" : "date";
             ViewData["TasksSortParm"] = sortOrder == "tasks" ? "tasks_desc" : "tasks";
             if (searchString != null)
@@ -178,8 +178,8 @@ namespace ToDoApp.Controllers
                     users = users.Where(s => s.Login.Contains(searchString));
             switch (sortOrder)
             {
-                case "login":
-                    users = users.OrderBy(s => s.Login);
+                case "login_desc":
+                    users = users.OrderByDescending(s => s.Login);
                     break;
                 case "date":
                     users = users.OrderBy(s => s.AdditionDate);
@@ -194,7 +194,7 @@ namespace ToDoApp.Controllers
                     users = users.OrderByDescending(s => s.Tasks.Count);
                     break;
                 default:
-                    users = users.OrderByDescending(s => s.Login);
+                    users = users.OrderBy(s => s.Login);
                     break;
             }
             return users;

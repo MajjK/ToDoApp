@@ -25,7 +25,8 @@ namespace ToDoApp.Controllers
             return View();
         }
 
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Home(User user)
         {
             try
@@ -53,6 +54,7 @@ namespace ToDoApp.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var tasks = this.GetSortedTasks(sortOrder, searchString);
+            tasks = tasks.Where(s => s.UserId == 1);
             //var tasks = this.GetSortedTasks(sortOrder, searchString).Where(s => s.UserId == DbUser.UserId);
             int pageSize = 10;
             int pageNumber = (page ?? 1);
