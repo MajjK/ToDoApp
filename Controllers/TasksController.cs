@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using X.PagedList;
 using AutoMapper;
 using ToDoApp.DB;
-using ToDoApp.ViewModel;
+using ToDoApp.DB.Model;
+using ToDoApp.ViewModel.Tasks;
+
 
 namespace ToDoApp.Controllers
 {
@@ -34,20 +36,35 @@ namespace ToDoApp.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var tasks = this.GetSortedTasks(sortOrder, searchString);
+            var tasksViewModel = this.GetMappedViewModel(tasks);
             int pageSize = 10;
             int pageNumber = (page ?? 1);
-
-            List<ViewModel.Tasks.TaskViewModel> tasksViewModel = new List<ViewModel.Tasks.TaskViewModel>();
-            foreach (var item in tasks)
-            {
-                ViewModel.Tasks.TaskViewModel taskViewModel = _mapper.Map<ViewModel.Tasks.TaskViewModel>(item);
-                tasksViewModel.Add(taskViewModel);
-            }
-
             return View(await tasksViewModel.ToPagedListAsync(pageNumber, pageSize));
         }
 
-        private IQueryable<ToDoApp.DB.Model.DbTask> GetSortedTasks(string sortOrder, string searchString)
+        private List<DbTask> GetMappedModel(List<TaskViewModel> tasksViewModel)
+        {
+            List<DbTask> tasks = new List<DbTask>();
+            foreach (var item in tasksViewModel)
+            {
+                DbTask task = _mapper.Map<DbTask>(item);
+                tasks.Add(task);
+            }
+            return tasks;
+        }
+
+        private List<TaskViewModel> GetMappedViewModel (IQueryable<DbTask> tasks)
+        {
+            List<TaskViewModel> tasksViewModel = new List<TaskViewModel>();
+            foreach (var item in tasks)
+            {
+                TaskViewModel taskViewModel = _mapper.Map<TaskViewModel>(item);
+                tasksViewModel.Add(taskViewModel);
+            }
+            return tasksViewModel;
+        }
+
+        private IQueryable<DbTask> GetSortedTasks(string sortOrder, string searchString)
         {
             var tasks = from s in DbContext.Tasks
                         select s;

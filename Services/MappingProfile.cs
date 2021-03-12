@@ -1,6 +1,7 @@
 ﻿using System;
 using AutoMapper;
-using ToDoApp.ViewModel;
+using ToDoApp.ViewModel.Tasks;
+using ToDoApp.ViewModel.Users;
 using ToDoApp.DB.Model;
 
 namespace ToDoApp.Services
