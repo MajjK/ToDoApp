@@ -11,14 +11,6 @@ using ToDoApp.ViewModel;
 
 namespace ToDoApp.Controllers
 {
-    public class Profiles : Profile
-    {
-        public Profiles()
-        {
-            CreateMap<DB.Model.DbTask, ViewModel.Tasks.TaskViewModel>();
-        }
-    }
-
     public class TasksController : Controller
     {
         private ToDoDatabaseContext DbContext;
