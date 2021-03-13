@@ -15,7 +15,7 @@ namespace ToDoApp.ViewModel.Users
         public string Password { get; set; }
 
         [Display(Name = "Addition Date")]
-        public DateTime? AdditionDate { get; set; }
+        public DateTime? AdditionDate { get; set; } = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
 
         public virtual ICollection<Tasks.TaskViewModel> Tasks { get; set; }
     }

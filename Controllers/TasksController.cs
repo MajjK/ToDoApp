@@ -9,7 +9,7 @@ using AutoMapper;
 using ToDoApp.DB;
 using ToDoApp.DB.Model;
 using ToDoApp.ViewModel.Tasks;
-
+//Error method w auth controller
 
 namespace ToDoApp.Controllers
 {
@@ -99,7 +99,6 @@ namespace ToDoApp.Controllers
             return tasks;
         }
 
-        /*
         public IActionResult Create()
         {
             return View();
@@ -107,13 +106,14 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Objective, Description, ClosingDate")] ToDoApp.Models.Task task)
+        public async Task<IActionResult> Create([Bind("Objective, Description, ClosingDate")] TaskViewModel taskViewModel)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    DbContext.Add(task);
+                    DbTask taskModel = _mapper.Map<DbTask>(taskViewModel);
+                    DbContext.Add(taskModel);
                     await DbContext.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
@@ -124,9 +124,9 @@ namespace ToDoApp.Controllers
                     "Try again, and if the problem persists " +
                     "see your system administrator.");
             }
-            return View(task);
-        }
-
+            return View(taskViewModel);
+        }      
+        
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -135,15 +135,17 @@ namespace ToDoApp.Controllers
             }
 
             var task = await DbContext.Tasks
-                .Include(s => s.User)
+                .Include(task => task.User)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.TaskId == id);
+                .FirstOrDefaultAsync(task => task.TaskId == id);
 
             if (task == null)
             {
                 return NotFound();
             }
-            return View(task);
+
+            TaskViewModel taskViewModel = _mapper.Map<TaskViewModel>(task);
+            return View(taskViewModel);
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -158,7 +160,9 @@ namespace ToDoApp.Controllers
             {
                 return NotFound();
             }
-            return View(task);
+
+            TaskViewModel taskViewModel = _mapper.Map<TaskViewModel>(task);
+            return View(taskViewModel);
         }
 
         [HttpPost, ActionName("Edit")]
@@ -169,8 +173,9 @@ namespace ToDoApp.Controllers
             {
                 return NotFound();
             }
+
             var taskToUpdate = await DbContext.Tasks.FirstOrDefaultAsync(s => s.TaskId == id);
-            if (await TryUpdateModelAsync<ToDoApp.Models.Task>(taskToUpdate, "",
+            if (await TryUpdateModelAsync<DbTask>(taskToUpdate, "",
                 s => s.Objective, s => s.Description, s => s.AdditionDate, s => s.ClosingDate, s => s.Finished))
             {
                 try
@@ -185,7 +190,9 @@ namespace ToDoApp.Controllers
                         "see your system administrator.");
                 }
             }
-            return View(taskToUpdate);
+
+            TaskViewModel taskViewModel = _mapper.Map<TaskViewModel>(taskToUpdate);
+            return View(taskViewModel);
         }
 
         public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
@@ -206,7 +213,9 @@ namespace ToDoApp.Controllers
                     "Delete failed. Try again, and if the problem persists " +
                     "see your system administrator.";
             }
-            return View(task);
+
+            TaskViewModel taskViewModel = _mapper.Map<TaskViewModel>(task);
+            return View(taskViewModel);
         }
 
         [HttpPost, ActionName("Delete")]
@@ -230,6 +239,5 @@ namespace ToDoApp.Controllers
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
         }
-        */
     }
 }

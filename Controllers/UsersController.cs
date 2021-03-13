@@ -66,7 +66,7 @@ namespace ToDoApp.Controllers
 
         private IQueryable<DbUser> GetSortedUsers(string sortOrder, string searchString)
         {
-            var users = from s in DbContext.Users
+            var users = from s in DbContext.Users.Include(s => s.Tasks)
                         select s;
             if (!String.IsNullOrEmpty(searchString))
                 if (DateTime.TryParse(searchString, out DateTime check_date))
@@ -96,8 +96,6 @@ namespace ToDoApp.Controllers
             }
             return users;
         }
-
-        /*
         public IActionResult Create()
         {
             return View();
@@ -105,13 +103,14 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Login, Password")] User user)
+        public async Task<IActionResult> Create([Bind("Login, Password")] UserViewModel userViewModel)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    DbContext.Add(user);
+                    DbUser userModel = _mapper.Map<DbUser>(userViewModel);
+                    DbContext.Add(userModel);
                     await DbContext.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
@@ -122,7 +121,7 @@ namespace ToDoApp.Controllers
                     "Try again, and if the problem persists " +
                     "see your system administrator.");
             }
-            return View(user);
+            return View(userViewModel);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -133,16 +132,17 @@ namespace ToDoApp.Controllers
             }
 
             var user = await DbContext.Users
-                .Include(s => s.Tasks)
+                .Include(user => user.Tasks.OrderByDescending(task => task.Finished).ThenBy(task => task.ClosingDate))
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.UserId == id);
+                .FirstOrDefaultAsync(user => user.UserId == id);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            UserViewModel userViewModel = _mapper.Map<UserViewModel>(user);
+            return View(userViewModel);
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -157,9 +157,11 @@ namespace ToDoApp.Controllers
             {
                 return NotFound();
             }
-            return View(user);
-        }
 
+            UserViewModel userViewModel = _mapper.Map<UserViewModel>(user);
+            return View(userViewModel);
+        }
+        
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(int? id)
@@ -168,8 +170,9 @@ namespace ToDoApp.Controllers
             {
                 return NotFound();
             }
+
             var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == id);
-            if (await TryUpdateModelAsync<User>(userToUpdate, "",
+            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "",
                 s => s.Login, s => s.Password, s => s.AdditionDate))
             {
                 try
@@ -184,6 +187,8 @@ namespace ToDoApp.Controllers
                         "see your system administrator.");
                 }
             }
+
+            UserViewModel userViewModel = _mapper.Map<UserViewModel>(userToUpdate);
             return View(userToUpdate);
         }
 
@@ -205,7 +210,9 @@ namespace ToDoApp.Controllers
                     "Delete failed. Try again, and if the problem persists " +
                     "see your system administrator.";
             }
-            return View(user);
+
+            UserViewModel userViewModel = _mapper.Map<UserViewModel>(user);
+            return View(userViewModel);
         }
 
         [HttpPost, ActionName("Delete")]
@@ -230,6 +237,5 @@ namespace ToDoApp.Controllers
             }
         }
 
-        */
     }
 }
