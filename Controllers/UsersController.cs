@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
 using AutoMapper;
@@ -23,7 +25,6 @@ namespace ToDoApp.Controllers
             _mapper = mapper;
         }
 
-        
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
             ViewData["LoginSortParm"] = String.IsNullOrEmpty(sortOrder) ? "login_desc" : "";
@@ -96,6 +97,8 @@ namespace ToDoApp.Controllers
             }
             return users;
         }
+
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
             return View();
@@ -124,6 +127,7 @@ namespace ToDoApp.Controllers
             return View(userViewModel);
         }
 
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -145,6 +149,7 @@ namespace ToDoApp.Controllers
             return View(userViewModel);
         }
 
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -192,6 +197,7 @@ namespace ToDoApp.Controllers
             return View(userToUpdate);
         }
 
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null)

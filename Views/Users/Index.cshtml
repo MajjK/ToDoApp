@@ -52,11 +52,14 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Tasks.Count)
             </td>
+            @if (User.IsInRole("admin")) 
+            { 
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id = item.UserId }) |
                 @Html.ActionLink("Details", "Details", new { id = item.UserId }) |
                 @Html.ActionLink("Delete", "Delete", new { id = item.UserId })
             </td>
+            }
         </tr>
     }
 </table>

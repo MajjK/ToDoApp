@@ -40,12 +40,6 @@ namespace ToDoApp
                 { 
                     options.LoginPath = "/Auth/Login";
                 });
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("Administrator", policy => policy.RequireClaim("EmployeeNumber"));
-            });
-
             services.AddSession();
             services.AddMvcCore(options =>
             { 
