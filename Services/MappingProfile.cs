@@ -2,6 +2,7 @@
 using AutoMapper;
 using ToDoApp.ViewModel.Tasks;
 using ToDoApp.ViewModel.Users;
+using ToDoApp.ViewModel.Auth;
 using ToDoApp.DB.Model;
 
 namespace ToDoApp.Services
@@ -14,6 +15,7 @@ namespace ToDoApp.Services
             CreateMap<TaskViewModel, DbTask>();
             CreateMap<DbUser, UserViewModel>();
             CreateMap<UserViewModel, DbUser>();
+            CreateMap<UserViewModel, LoginViewModel>();
         }
     }
 

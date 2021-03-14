@@ -12,9 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using ToDoApp.DB.Model;
 using ToDoApp.DB;
 using ToDoApp.ViewModel.Auth;
+using ToDoApp.ViewModel.Users;
 using ToDoApp.ViewModel;
-//If w _LoginPartial jeśli zalogowany to wyświetl Hello/LogOut jeśli nie to Create Account
-// Usuwanie Cookie po wylaczeniu strony
+using AutoMapper;
+//Uaktualnianie Cookie Po usunieciu uzytkownika
 
 namespace ToDoApp.Controllers
 {
@@ -22,10 +23,12 @@ namespace ToDoApp.Controllers
     public class AuthController : Controller
     {
         private readonly ToDoDatabaseContext DbContext;
+        private readonly IMapper _mapper;
 
-        public AuthController(ToDoDatabaseContext context)
+        public AuthController(ToDoDatabaseContext context, IMapper mapper)
         {
             this.DbContext = context;
+            _mapper = mapper;
         }
 
         public IActionResult Login()
@@ -39,15 +42,21 @@ namespace ToDoApp.Controllers
         {
             if (!this.ModelState.IsValid)
             {
-                return this.View("Index", loginViewModel);
+                return this.View("Login", loginViewModel);
             }
             DbUser user = await this.DbContext.Users.Where(s => s.Login == loginViewModel.Login && s.Password == loginViewModel.Password).SingleOrDefaultAsync();
             if (user == null)
             {
                 this.ModelState.AddModelError("", "Wrong login or password");
-                return this.View("Index", loginViewModel);
+                return this.View("Login", loginViewModel);
             }
 
+            this.SignUserCookie(user);
+            return this.RedirectToAction("Index", "Tasks");
+        }
+
+        private async void SignUserCookie(DbUser user)
+        {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
@@ -63,7 +72,6 @@ namespace ToDoApp.Controllers
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
             await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
-            return this.RedirectToAction("Index", "Tasks");
         }
 
         public async Task<IActionResult> Logout()
@@ -72,12 +80,34 @@ namespace ToDoApp.Controllers
             return this.RedirectToAction("Login", "Auth");
         }
 
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return this.RedirectToAction("Login", "Auth");
+            return View();
         }
-
+  
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Login, Password")] UserViewModel userViewModel)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    DbUser userModel = _mapper.Map<DbUser>(userViewModel);
+                    DbContext.Add(userModel);
+                    await DbContext.SaveChangesAsync();
+                    this.SignUserCookie(userModel);
+                    return this.RedirectToAction("Index", "Tasks");
+                }
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator.");
+            }
+            return View(userViewModel);
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
