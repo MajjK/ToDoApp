@@ -237,5 +237,13 @@ namespace ToDoApp.Controllers
             }
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                DbContext.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
 }

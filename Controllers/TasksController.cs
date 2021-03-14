@@ -9,6 +9,7 @@ using AutoMapper;
 using ToDoApp.DB;
 using ToDoApp.DB.Model;
 using ToDoApp.ViewModel.Tasks;
+using System.Security.Claims;
 //Error method w auth controller
 
 namespace ToDoApp.Controllers
@@ -26,6 +27,8 @@ namespace ToDoApp.Controllers
 
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
+            int userId = int.Parse(this.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
             ViewData["FinishSortParm"] = String.IsNullOrEmpty(sortOrder) ? "finish" : "";
             ViewData["ObjectiveSortParm"] = sortOrder == "objective" ? "objective_desc" : "objective";
             ViewData["DateSortParm"] = sortOrder == "date" ? "date_desc" : "date";
@@ -35,7 +38,7 @@ namespace ToDoApp.Controllers
                 searchString = currentFilter;
             ViewData["CurrentFilter"] = searchString;
 
-            var tasks = this.GetSortedTasks(sortOrder, searchString);
+            var tasks = this.GetSortedTasks(sortOrder, searchString).Where(task => task.UserId == userId);
             var tasksViewModel = this.GetMappedViewModel(tasks);
             int pageSize = 10;
             int pageNumber = (page ?? 1);
@@ -238,6 +241,15 @@ namespace ToDoApp.Controllers
             {
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                DbContext.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }
