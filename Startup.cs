@@ -10,6 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using ToDoApp.DB;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 //Scaffold-DbContext "User ID=postgres;Password=postgres;Host=localhost;Port=5432;Database=ToDoDatabase;" Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Models
 
 
@@ -31,11 +34,23 @@ namespace ToDoApp
             services.AddDbContext<ToDoDatabaseContext>(options => options.UseNpgsql(this.Configuration["ToDoDatabase"]));
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>{ 
+                options.LoginPath = "/Auth/Index";
+            });
+
+            services.AddSession();
+            services.AddMvcCore(options =>{ 
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseAuthentication();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -48,7 +63,7 @@ namespace ToDoApp
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseSession();
             app.UseRouting();
 
             app.UseAuthorization();
