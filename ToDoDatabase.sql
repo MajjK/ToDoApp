@@ -5,7 +5,7 @@
 -- Dumped from database version 13.2
 -- Dumped by pg_dump version 13.2
 
--- Started on 2021-03-14 13:33:46
+-- Started on 2021-03-14 23:21:59
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -49,7 +49,8 @@ CREATE TABLE public."Users" (
     user_id integer NOT NULL,
     login character varying(50) NOT NULL,
     password character varying(50) NOT NULL,
-    addition_date timestamp without time zone DEFAULT date_trunc('minute'::text, CURRENT_TIMESTAMP)
+    addition_date timestamp without time zone DEFAULT date_trunc('minute'::text, CURRENT_TIMESTAMP),
+    role character varying DEFAULT USER NOT NULL
 );
 
 
@@ -72,7 +73,7 @@ CREATE SEQUENCE public.operator_operator_id_seq
 ALTER TABLE public.operator_operator_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3012 (class 0 OID 0)
+-- TOC entry 3014 (class 0 OID 0)
 -- Dependencies: 200
 -- Name: operator_operator_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -97,7 +98,7 @@ CREATE SEQUENCE public.task_operator_id_seq
 ALTER TABLE public.task_operator_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3013 (class 0 OID 0)
+-- TOC entry 3015 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: task_operator_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -122,7 +123,7 @@ CREATE SEQUENCE public.task_task_id_seq
 ALTER TABLE public.task_task_id_seq OWNER TO postgres;
 
 --
--- TOC entry 3014 (class 0 OID 0)
+-- TOC entry 3016 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: task_task_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -131,7 +132,7 @@ ALTER SEQUENCE public.task_task_id_seq OWNED BY public."Tasks".task_id;
 
 
 --
--- TOC entry 2861 (class 2604 OID 24650)
+-- TOC entry 2863 (class 2604 OID 24650)
 -- Name: Tasks task_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -139,7 +140,7 @@ ALTER TABLE ONLY public."Tasks" ALTER COLUMN task_id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 2859 (class 2604 OID 24639)
+-- TOC entry 2860 (class 2604 OID 24639)
 -- Name: Users user_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -147,7 +148,7 @@ ALTER TABLE ONLY public."Users" ALTER COLUMN user_id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 3006 (class 0 OID 24647)
+-- TOC entry 3008 (class 0 OID 24647)
 -- Dependencies: 204
 -- Data for Name: Tasks; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -163,28 +164,28 @@ COPY public."Tasks" (task_id, user_id, objective, description, addition_date, cl
 
 
 --
--- TOC entry 3003 (class 0 OID 24636)
+-- TOC entry 3005 (class 0 OID 24636)
 -- Dependencies: 201
 -- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Users" (user_id, login, password, addition_date) FROM stdin;
-1	postgres	postgres	2021-03-03 22:51:00
-2	postgres2	postgres	2021-03-14 00:00:00
+COPY public."Users" (user_id, login, password, addition_date, role) FROM stdin;
+2	postgres2	postgres	2021-03-14 00:00:00	user
+1	postgres	postgres	2021-03-03 22:51:00	admin
 \.
 
 
 --
--- TOC entry 3015 (class 0 OID 0)
+-- TOC entry 3017 (class 0 OID 0)
 -- Dependencies: 200
 -- Name: operator_operator_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.operator_operator_id_seq', 18, true);
+SELECT pg_catalog.setval('public.operator_operator_id_seq', 33, true);
 
 
 --
--- TOC entry 3016 (class 0 OID 0)
+-- TOC entry 3018 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: task_operator_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -193,7 +194,7 @@ SELECT pg_catalog.setval('public.task_operator_id_seq', 18, true);
 
 
 --
--- TOC entry 3017 (class 0 OID 0)
+-- TOC entry 3019 (class 0 OID 0)
 -- Dependencies: 202
 -- Name: task_task_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -202,34 +203,34 @@ SELECT pg_catalog.setval('public.task_task_id_seq', 52, true);
 
 
 --
--- TOC entry 2866 (class 2606 OID 24665)
--- Name: Users Users_login_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 2868 (class 2606 OID 24676)
+-- Name: Users login_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Users"
-    ADD CONSTRAINT "Users_login_key" UNIQUE (login);
+    ADD CONSTRAINT login_unique UNIQUE (login);
 
 
 --
--- TOC entry 2868 (class 2606 OID 24642)
--- Name: Users operator_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."Users"
-    ADD CONSTRAINT operator_pkey PRIMARY KEY (user_id);
-
-
---
--- TOC entry 2870 (class 2606 OID 24658)
--- Name: Tasks task_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 2872 (class 2606 OID 24658)
+-- Name: Tasks task_id_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Tasks"
-    ADD CONSTRAINT task_pkey PRIMARY KEY (task_id);
+    ADD CONSTRAINT task_id_pkey PRIMARY KEY (task_id);
 
 
 --
--- TOC entry 2871 (class 2606 OID 24659)
+-- TOC entry 2870 (class 2606 OID 24642)
+-- Name: Users user_id_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT user_id_pkey PRIMARY KEY (user_id);
+
+
+--
+-- TOC entry 2873 (class 2606 OID 24659)
 -- Name: Tasks task_operator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -237,7 +238,7 @@ ALTER TABLE ONLY public."Tasks"
     ADD CONSTRAINT task_operator_id_fkey FOREIGN KEY (user_id) REFERENCES public."Users"(user_id) ON DELETE CASCADE;
 
 
--- Completed on 2021-03-14 13:33:47
+-- Completed on 2021-03-14 23:22:00
 
 --
 -- PostgreSQL database dump complete
