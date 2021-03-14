@@ -21,6 +21,9 @@ namespace ToDoApp.DB.Model
         [Column("addition_date")]
         public DateTime? AdditionDate { get; set; }
 
+        [Column("role")]
+        public string Role { get; set; }
+
         public virtual ICollection<DbTask> Tasks { get; set; }
     }
 }

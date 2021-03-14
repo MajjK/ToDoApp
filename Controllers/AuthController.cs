@@ -13,7 +13,8 @@ using ToDoApp.DB.Model;
 using ToDoApp.DB;
 using ToDoApp.ViewModel.Auth;
 using ToDoApp.ViewModel;
-//sha512, md5 kodowanie hasła
+//If w _LoginPartial jeśli zalogowany to wyświetl Hello/LogOut jeśli nie to Create Account
+// Usuwanie Cookie po wylaczeniu strony
 
 namespace ToDoApp.Controllers
 {
@@ -27,7 +28,7 @@ namespace ToDoApp.Controllers
             this.DbContext = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Login()
         {
             return this.View(new LoginViewModel());
         }
@@ -47,17 +48,36 @@ namespace ToDoApp.Controllers
                 return this.View("Index", loginViewModel);
             }
 
-            var identity = new ClaimsIdentity(new[] {
+            var claims = new List<Claim>
+            {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Login),
-            }, CookieAuthenticationDefaults.AuthenticationScheme);
+                new Claim(ClaimTypes.Role, user.Role),
+            };
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = false,
+                ExpiresUtc = DateTime.UtcNow.AddMinutes(60)
+            };
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-            var props = new AuthenticationProperties();
-            var principal = new ClaimsPrincipal(identity);
-            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props);
-
+            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
             return this.RedirectToAction("Index", "Tasks");
         }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return this.RedirectToAction("Login", "Auth");
+        }
+
+        public async Task<IActionResult> Create()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return this.RedirectToAction("Login", "Auth");
+        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -65,10 +85,5 @@ namespace ToDoApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            DbContext.Dispose();
-            base.Dispose(disposing);
-        }
     }
 }

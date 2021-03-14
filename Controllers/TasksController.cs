@@ -11,6 +11,7 @@ using ToDoApp.DB.Model;
 using ToDoApp.ViewModel.Tasks;
 using System.Security.Claims;
 //Error method w auth controller
+//sha512, md5 kodowanie hasła
 
 namespace ToDoApp.Controllers
 {
@@ -243,13 +244,5 @@ namespace ToDoApp.Controllers
             }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                DbContext.Dispose();
-            }
-            base.Dispose(disposing);
-        }
     }
 }
