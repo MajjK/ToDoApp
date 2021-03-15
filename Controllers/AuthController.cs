@@ -15,7 +15,10 @@ using ToDoApp.ViewModel.Auth;
 using ToDoApp.ViewModel.Users;
 using ToDoApp.ViewModel;
 using AutoMapper;
+using ToDoApp.Services;
 //Uaktualnianie Cookie Po usunieciu uzytkownika
+//Hasło duża litera nic nie zmienia
+//Blad jesli haslo litery i cyfry
 
 namespace ToDoApp.Controllers
 {
@@ -44,8 +47,10 @@ namespace ToDoApp.Controllers
             {
                 return this.View("Login", loginViewModel);
             }
-            DbUser user = await this.DbContext.Users.Where(s => s.Login == loginViewModel.Login && s.Password == loginViewModel.Password).SingleOrDefaultAsync();
-            if (user == null)
+            
+            DbUser user = await this.DbContext.Users.Where(s => s.Login == loginViewModel.Login).SingleOrDefaultAsync();
+            
+            if (user == null || !HashProfile.ValidatePasswords(loginViewModel.Password, user.Password, user.PasswordSalt))
             {
                 this.ModelState.AddModelError("", "Wrong login or password");
                 return this.View("Login", loginViewModel);
@@ -93,6 +98,7 @@ namespace ToDoApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    userViewModel.Password = HashProfile.GetSaltedHashPassword(userViewModel.Password, userViewModel.PasswordSalt);
                     DbUser userModel = _mapper.Map<DbUser>(userViewModel);
                     DbContext.Add(userModel);
                     await DbContext.SaveChangesAsync();

@@ -10,6 +10,7 @@ using AutoMapper;
 using ToDoApp.DB;
 using ToDoApp.DB.Model;
 using ToDoApp.ViewModel.Users;
+using ToDoApp.Services;
 
 namespace ToDoApp.Controllers
 {
@@ -111,6 +112,7 @@ namespace ToDoApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    userViewModel.Password = HashProfile.GetSaltedHashPassword(userViewModel.Password, userViewModel.PasswordSalt);
                     DbUser userModel = _mapper.Map<DbUser>(userViewModel);
                     DbContext.Add(userModel);
                     await DbContext.SaveChangesAsync();
