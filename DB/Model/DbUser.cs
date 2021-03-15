@@ -18,6 +18,9 @@ namespace ToDoApp.DB.Model
         [Column("password")]
         public string Password { get; set; }
 
+        [Column("password_salt")]
+        public string PasswordSalt { get; set; }
+
         [Column("addition_date")]
         public DateTime? AdditionDate { get; set; }
 

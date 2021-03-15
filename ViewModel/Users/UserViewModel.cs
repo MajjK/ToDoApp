@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using ToDoApp.Services;
 
 namespace ToDoApp.ViewModel.Users
 {
@@ -13,6 +14,8 @@ namespace ToDoApp.ViewModel.Users
 
         [StringLength(50)]
         public string Password { get; set; }
+
+        public string PasswordSalt { get; set; } = HashProfile.GenerateSalt();
 
         [Display(Name = "Addition Date")]
         public DateTime? AdditionDate { get; set; } = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
