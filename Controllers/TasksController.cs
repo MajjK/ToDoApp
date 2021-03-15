@@ -46,17 +46,6 @@ namespace ToDoApp.Controllers
             return View(await tasksViewModel.ToPagedListAsync(pageNumber, pageSize));
         }
 
-        private List<DbTask> GetMappedModel(List<TaskViewModel> tasksViewModel)
-        {
-            List<DbTask> tasks = new List<DbTask>();
-            foreach (var item in tasksViewModel)
-            {
-                DbTask task = _mapper.Map<DbTask>(item);
-                tasks.Add(task);
-            }
-            return tasks;
-        }
-
         private List<TaskViewModel> GetMappedViewModel (IQueryable<DbTask> tasks)
         {
             List<TaskViewModel> tasksViewModel = new List<TaskViewModel>();

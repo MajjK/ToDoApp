@@ -43,17 +43,6 @@ namespace ToDoApp.Controllers
             return View(await usersViewModel.ToPagedListAsync(pageNumber, pageSize));
         }
 
-        private List<DbUser> GetMappedModel(List<UserViewModel> usersViewModel)
-        {
-            List<DbUser> users = new List<DbUser>();
-            foreach (var item in usersViewModel)
-            {
-                DbUser user = _mapper.Map<DbUser>(item);
-                users.Add(user);
-            }
-            return users;
-        }
-
         private List<UserViewModel> GetMappedViewModel(IQueryable<DbUser> users)
         {
             List<UserViewModel> usersViewModel = new List<UserViewModel>();
