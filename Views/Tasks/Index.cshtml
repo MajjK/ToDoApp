@@ -1,14 +1,14 @@
 ﻿@model X.PagedList.IPagedList<ToDoApp.ViewModel.Tasks.TaskViewModel>
 @using X.PagedList.Mvc.Core;
 @using X.PagedList.Mvc.Core.Common;
+@using System.Security.Claims;
 
 @{
     ViewBag.Title = "Tasks";
 }
-
 <h2>Tasks</h2>
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Create New", "Create", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier) })
 </p>
 <form asp-action="Index" method="get">
     <div class="form-actions no-color">

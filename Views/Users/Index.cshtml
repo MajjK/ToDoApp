@@ -7,9 +7,12 @@
 }
 
 <h2>Users</h2>
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
+@if (User.IsInRole("admin"))
+{
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+}
 <form asp-action="Index" method="get">
     <div class="form-actions no-color">
         <p>
@@ -52,13 +55,14 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Tasks.Count)
             </td>
-            @if (User.IsInRole("admin")) 
-            { 
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.UserId }) |
-                @Html.ActionLink("Details", "Details", new { id = item.UserId }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.UserId })
-            </td>
+            @if (User.IsInRole("admin"))
+            {
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.UserId }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.UserId }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.UserId }) |
+                    @Html.ActionLink("Create Task", "Create", "Tasks", new { id = item.UserId }) 
+                </td>
             }
         </tr>
     }

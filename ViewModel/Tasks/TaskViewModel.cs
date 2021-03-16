@@ -7,7 +7,7 @@ namespace ToDoApp.ViewModel.Tasks
     {
         public int TaskId { get; set; }
 
-        public int UserId { get; set; } = 1;
+        public int UserId { get; set; }
 
         [Display(Name = "Task")]
         [StringLength(255)]
