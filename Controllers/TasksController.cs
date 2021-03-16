@@ -92,14 +92,26 @@ namespace ToDoApp.Controllers
             return tasks;
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await DbContext.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            TaskViewModel taskViewModel = new TaskViewModel { UserId = (int)id };
+            return View(taskViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Objective, Description, ClosingDate")] TaskViewModel taskViewModel)
+        public async Task<IActionResult> Create([Bind("UserId, Objective, Description, ClosingDate")] TaskViewModel taskViewModel)
         {
             try
             {
