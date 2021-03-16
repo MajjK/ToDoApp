@@ -17,8 +17,6 @@ using ToDoApp.ViewModel;
 using AutoMapper;
 using ToDoApp.Services;
 //Uaktualnianie Cookie Po usunieciu uzytkownika
-//Hasło duża litera nic nie zmienia
-//Blad jesli haslo litery i cyfry
 
 namespace ToDoApp.Controllers
 {
@@ -58,25 +56,6 @@ namespace ToDoApp.Controllers
 
             this.SignUserCookie(user);
             return this.RedirectToAction("Index", "Tasks");
-        }
-
-        private async void SignUserCookie(DbUser user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.Login),
-                new Claim(ClaimTypes.Role, user.Role),
-            };
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = false,
-                ExpiresUtc = DateTime.UtcNow.AddMinutes(60)
-            };
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
         }
 
         public async Task<IActionResult> Logout()
@@ -121,5 +100,23 @@ namespace ToDoApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        private async void SignUserCookie(DbUser user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.Login),
+                new Claim(ClaimTypes.Role, user.Role),
+            };
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = false,
+                ExpiresUtc = DateTime.UtcNow.AddMinutes(60)
+            };
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
+        }
     }
 }
