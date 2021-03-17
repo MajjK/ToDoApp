@@ -1,0 +1,66 @@
+﻿@model X.PagedList.IPagedList<ToDoApp.ViewModel.Tasks.TaskViewModel>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Mvc.Core.Common;
+@using System.Security.Claims;
+
+@{
+    ViewBag.Title = "Tasks";
+}
+<h2>Tasks</h2>
+<p>
+    @Html.ActionLink("Create New", "Create", new { id = User.FindFirstValue(ClaimTypes.NameIdentifier) })
+</p>
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-light" />
+            <a asp-action="Index">Back to List</a>
+        </p>
+    </div>
+</form>
+
+<table class="table">
+    <tr>
+        <th>
+            <a asp-action="Index" asp-route-sortOrder="@ViewData["ObjectiveSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                @Html.DisplayNameFor(model => model.First().Objective)
+            </a>
+        </th>
+        <th>
+            <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                @Html.DisplayNameFor(model => model.First().ClosingDate)
+            </a>
+        </th>
+        <th>
+            <a asp-action="Index" asp-route-sortOrder="@ViewData["FinishSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                @Html.DisplayNameFor(model => model.First().Finished)
+            </a>
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Objective)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ClosingDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Finished)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.TaskId }) |
+                @Html.ActionLink("Details", "Details", new { id = item.TaskId }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.TaskId })
+            </td>
+        </tr>
+    }
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }),
+                    new PagedListRenderOptions { LiElementClasses = new string[] { "page-item" }, PageClasses = new string[] { "page-link" } })
