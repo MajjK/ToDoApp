@@ -64,36 +64,6 @@ namespace ToDoApp.Controllers
             return RedirectToAction("Login", "Auth");
         }
 
-        public IActionResult Create()
-        {
-            return View();
-        }
-  
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Login, Password")] UserViewModel userViewModel)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    userViewModel.Password = HashProfile.GetSaltedHashPassword(userViewModel.Password, userViewModel.PasswordSalt);
-                    DbUser userModel = _mapper.Map<DbUser>(userViewModel);
-                    DbContext.Add(userModel);
-                    await DbContext.SaveChangesAsync();
-                    SignUserCookie(userModel);
-                    return RedirectToAction("Index", "Tasks");
-                }
-            }
-            catch (DbUpdateException)
-            {
-                ModelState.AddModelError("", "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-            }
-            return View(userViewModel);
-        }
-
         [Authorize]
         public async Task<IActionResult> Edit()
         {
