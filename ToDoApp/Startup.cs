@@ -31,7 +31,7 @@ namespace ToDoApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddDbContext<ToDoDatabaseContext>(options => options.UseNpgsql(this.Configuration["ToDoDatabase"]));
+            services.AddDbContext<ToDoDatabaseContext>(options => options.UseNpgsql(Configuration.GetConnectionString("ToDoDatabaseConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddAutoMapper(typeof(Startup));
 

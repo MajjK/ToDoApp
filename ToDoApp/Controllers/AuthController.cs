@@ -94,10 +94,55 @@ namespace ToDoApp.Controllers
             return View(userViewModel);
         }
 
+        [Authorize]
+        public async Task<IActionResult> Edit()
+        {
+            var user = await DbContext.Users.FindAsync(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+            if (user == null)
+            {
+                return NotFound();
+            }
+            LoginViewModel loginViewModel = _mapper.Map<LoginViewModel>(user);
+            return View(loginViewModel);
+        }
+
+        [Authorize]
+        [HttpPost, ActionName("Edit")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPost()
+        {
+            var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Login, s => s.Password))
+            {
+                try
+                {
+                    userToUpdate.Password = HashProfile.GetSaltedHashPassword(userToUpdate.Password, userToUpdate.PasswordSalt);
+                    await DbContext.SaveChangesAsync();
+                    this.UpdateUserCookie(userToUpdate);
+                    return RedirectToAction("Index", "Tasks");
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists, " +
+                        "see your system administrator.");
+                }
+            }
+
+            LoginViewModel loginViewModel = _mapper.Map<LoginViewModel>(userToUpdate);
+            return View(loginViewModel);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private async void UpdateUserCookie(DbUser user)
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            SignUserCookie(user);
         }
 
         private async void SignUserCookie(DbUser user)

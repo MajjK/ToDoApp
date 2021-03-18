@@ -6,13 +6,19 @@
         </li>
 
         <li class="nav-item">
+            <form class="form-inline" asp-area="" asp-controller="Auth" asp-action="Edit" method="get">
+                <button type="submit" class="nav-link btn btn-light text-dark">Edit Account</button>
+            </form>
+        </li>
+
+        <li class="nav-item">
             <form class="form-inline" asp-area="" asp-controller="Auth" asp-action="Logout" method="post">
                 <button type="submit" class="nav-link btn btn-light text-dark">Logout</button>
             </form>
         </li>
-     }
-    else 
-    { 
+    }
+    else
+    {
         <li class="nav-item">
             <form class="form-inline" asp-area="" asp-controller="Auth" asp-action="Create" method="get">
                 <button type="submit" class="nav-link btn btn-light text-dark">Create Account</button>
