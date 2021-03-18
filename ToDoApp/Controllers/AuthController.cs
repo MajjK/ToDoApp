@@ -28,40 +28,40 @@ namespace ToDoApp.Controllers
 
         public AuthController(ToDoDatabaseContext context, IMapper mapper)
         {
-            this.DbContext = context;
+            DbContext = context;
             _mapper = mapper;
         }
 
         public IActionResult Login()
         {
-            return this.View(new LoginViewModel());
+            return View(new LoginViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
-            if (!this.ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return this.View("Login", loginViewModel);
+                return View("Login", loginViewModel);
             }
             
-            DbUser user = await this.DbContext.Users.Where(s => s.Login == loginViewModel.Login).SingleOrDefaultAsync();
+            DbUser user = await DbContext.Users.Where(s => s.Login == loginViewModel.Login).SingleOrDefaultAsync();
             
             if (user == null || !HashProfile.ValidatePasswords(loginViewModel.Password, user.Password, user.PasswordSalt))
             {
-                this.ModelState.AddModelError("", "Wrong login or password");
-                return this.View("Login", loginViewModel);
+                ModelState.AddModelError("", "Wrong login or password");
+                return View("Login", loginViewModel);
             }
 
-            this.SignUserCookie(user);
-            return this.RedirectToAction("Index", "Tasks");
+            SignUserCookie(user);
+            return RedirectToAction("Index", "Tasks");
         }
 
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return this.RedirectToAction("Login", "Auth");
+            return RedirectToAction("Login", "Auth");
         }
 
         public IActionResult Create()
@@ -81,8 +81,8 @@ namespace ToDoApp.Controllers
                     DbUser userModel = _mapper.Map<DbUser>(userViewModel);
                     DbContext.Add(userModel);
                     await DbContext.SaveChangesAsync();
-                    this.SignUserCookie(userModel);
-                    return this.RedirectToAction("Index", "Tasks");
+                    SignUserCookie(userModel);
+                    return RedirectToAction("Index", "Tasks");
                 }
             }
             catch (DbUpdateException)
@@ -118,7 +118,7 @@ namespace ToDoApp.Controllers
                 {
                     userToUpdate.Password = HashProfile.GetSaltedHashPassword(userToUpdate.Password, userToUpdate.PasswordSalt);
                     await DbContext.SaveChangesAsync();
-                    this.UpdateUserCookie(userToUpdate);
+                    UpdateUserCookie(userToUpdate);
                     return RedirectToAction("Index", "Tasks");
                 }
                 catch (DbUpdateException)
@@ -161,7 +161,7 @@ namespace ToDoApp.Controllers
             };
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
         }
     }
 }
