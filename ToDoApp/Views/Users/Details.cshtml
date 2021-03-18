@@ -49,6 +49,11 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Finished)
                     </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", "Tasks", new { id = item.TaskId }) |
+                        @Html.ActionLink("Details", "Details", "Tasks", new { id = item.TaskId }) |
+                        @Html.ActionLink("Delete", "Delete", "Tasks", new { id = item.TaskId })
+                    </td>
                 </tr>
             }
         </table>

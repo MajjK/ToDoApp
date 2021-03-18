@@ -10,8 +10,7 @@ using ToDoApp.DB;
 using ToDoApp.DB.Model;
 using ToDoApp.ViewModel.Tasks;
 using System.Security.Claims;
-//Error method w auth controller
-//sha512, md5 kodowanie hasła
+
 
 namespace ToDoApp.Controllers
 {
@@ -44,52 +43,6 @@ namespace ToDoApp.Controllers
             int pageSize = 10;
             int pageNumber = (page ?? 1);
             return View(await tasksViewModel.ToPagedListAsync(pageNumber, pageSize));
-        }
-
-        private List<TaskViewModel> GetMappedViewModel (IQueryable<DbTask> tasks)
-        {
-            List<TaskViewModel> tasksViewModel = new List<TaskViewModel>();
-            foreach (var item in tasks)
-            {
-                TaskViewModel taskViewModel = _mapper.Map<TaskViewModel>(item);
-                tasksViewModel.Add(taskViewModel);
-            }
-            return tasksViewModel;
-        }
-
-        private IQueryable<DbTask> GetSortedTasks(string sortOrder, string searchString)
-        {
-            var tasks = from s in DbContext.Tasks
-                        select s;
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                if (DateTime.TryParse(searchString, out DateTime check_date))
-                    tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.Date.Equals(check_date));
-                else
-                    tasks = tasks.Where(s => s.Objective.Contains(searchString));
-            }
-            switch (sortOrder)
-            {
-                case "finish":
-                    tasks = tasks.OrderBy(s => s.Finished).ThenBy(s => s.ClosingDate);
-                    break;
-                case "objective":
-                    tasks = tasks.OrderBy(s => s.Objective);
-                    break;
-                case "objective_desc":
-                    tasks = tasks.OrderByDescending(s => s.Objective);
-                    break;
-                case "date":
-                    tasks = tasks.OrderBy(s => s.ClosingDate).ThenByDescending(s => s.Finished);
-                    break;
-                case "date_desc":
-                    tasks = tasks.OrderByDescending(s => s.ClosingDate).ThenByDescending(s => s.Finished);
-                    break;
-                default:
-                    tasks = tasks.OrderByDescending(s => s.Finished).ThenBy(s => s.ClosingDate);
-                    break;
-            }
-            return tasks;
         }
 
         public async Task<IActionResult> Create(int? id)
@@ -245,5 +198,50 @@ namespace ToDoApp.Controllers
             }
         }
 
+        private List<TaskViewModel> GetMappedViewModel(IQueryable<DbTask> tasks)
+        {
+            List<TaskViewModel> tasksViewModel = new List<TaskViewModel>();
+            foreach (var item in tasks)
+            {
+                TaskViewModel taskViewModel = _mapper.Map<TaskViewModel>(item);
+                tasksViewModel.Add(taskViewModel);
+            }
+            return tasksViewModel;
+        }
+
+        private IQueryable<DbTask> GetSortedTasks(string sortOrder, string searchString)
+        {
+            var tasks = from s in DbContext.Tasks
+                        select s;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                if (DateTime.TryParse(searchString, out DateTime check_date))
+                    tasks = tasks.Where(s => s.Objective.Contains(searchString) || s.ClosingDate.Value.Date.Equals(check_date));
+                else
+                    tasks = tasks.Where(s => s.Objective.Contains(searchString));
+            }
+            switch (sortOrder)
+            {
+                case "finish":
+                    tasks = tasks.OrderBy(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+                case "objective":
+                    tasks = tasks.OrderBy(s => s.Objective);
+                    break;
+                case "objective_desc":
+                    tasks = tasks.OrderByDescending(s => s.Objective);
+                    break;
+                case "date":
+                    tasks = tasks.OrderBy(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                case "date_desc":
+                    tasks = tasks.OrderByDescending(s => s.ClosingDate).ThenByDescending(s => s.Finished);
+                    break;
+                default:
+                    tasks = tasks.OrderByDescending(s => s.Finished).ThenBy(s => s.ClosingDate);
+                    break;
+            }
+            return tasks;
+        }
     }
 }
