@@ -94,7 +94,7 @@ namespace ToDoApp.Controllers
 
         public async Task<IActionResult> Create(int? id)
         {
-            if (id == null)
+            if (id == null || !User.IsInRole("admin") && id != int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
             {
                 return NotFound();
             }
@@ -144,7 +144,7 @@ namespace ToDoApp.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(task => task.TaskId == id);
 
-            if (task == null)
+            if (task == null || !User.IsInRole("admin") && task.UserId != int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
             {
                 return NotFound();
             }
@@ -161,7 +161,7 @@ namespace ToDoApp.Controllers
             }
 
             var task = await DbContext.Tasks.FindAsync(id);
-            if (task == null)
+            if (task == null || !User.IsInRole("admin") && task.UserId != int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
             {
                 return NotFound();
             }
@@ -208,7 +208,7 @@ namespace ToDoApp.Controllers
             }
 
             var task = await DbContext.Tasks.AsNoTracking().FirstOrDefaultAsync(s => s.TaskId == id);
-            if (task == null)
+            if (task == null || !User.IsInRole("admin") && task.UserId != int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
             {
                 return NotFound();
             }
