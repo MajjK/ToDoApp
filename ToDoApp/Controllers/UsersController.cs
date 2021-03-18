@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
@@ -44,49 +46,6 @@ namespace ToDoApp.Controllers
             return View(await usersViewModel.ToPagedListAsync(pageNumber, pageSize));
         }
 
-        private List<UserViewModel> GetMappedViewModel(IQueryable<DbUser> users)
-        {
-            List<UserViewModel> usersViewModel = new List<UserViewModel>();
-            foreach (var item in users)
-            {
-                UserViewModel userViewModel = _mapper.Map<UserViewModel>(item);
-                usersViewModel.Add(userViewModel);
-            }
-            return usersViewModel;
-        }
-
-        private IQueryable<DbUser> GetSortedUsers(string sortOrder, string searchString)
-        {
-            var users = from s in DbContext.Users.Include(s => s.Tasks)
-                        select s;
-            if (!String.IsNullOrEmpty(searchString))
-                if (DateTime.TryParse(searchString, out DateTime check_date))
-                    users = users.Where(s => s.Login.Contains(searchString) || s.AdditionDate.Value.Date.Equals(check_date));
-                else
-                    users = users.Where(s => s.Login.Contains(searchString));
-            switch (sortOrder)
-            {
-                case "login_desc":
-                    users = users.OrderByDescending(s => s.Login);
-                    break;
-                case "date":
-                    users = users.OrderBy(s => s.AdditionDate);
-                    break;
-                case "date_desc":
-                    users = users.OrderByDescending(s => s.AdditionDate);
-                    break;
-                case "tasks":
-                    users = users.OrderBy(s => s.Tasks.Count);
-                    break;
-                case "tasks_desc":
-                    users = users.OrderByDescending(s => s.Tasks.Count);
-                    break;
-                default:
-                    users = users.OrderBy(s => s.Login);
-                    break;
-            }
-            return users;
-        }
 
         [Authorize(Roles = "admin")]
         public IActionResult Create()
@@ -168,8 +127,7 @@ namespace ToDoApp.Controllers
             }
 
             var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == id);
-            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "",
-                s => s.Login, s => s.Password, s => s.AdditionDate))
+            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.AdditionDate, s => s.Role))
             {
                 try
                 {
@@ -225,7 +183,13 @@ namespace ToDoApp.Controllers
             {
                 DbContext.Users.Remove(user);
                 await DbContext.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (id == int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+                {
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return RedirectToAction("Login", "Auth");
+                }
+                else
+                    return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
             {
@@ -233,5 +197,48 @@ namespace ToDoApp.Controllers
             }
         }
 
+        private List<UserViewModel> GetMappedViewModel(IQueryable<DbUser> users)
+        {
+            List<UserViewModel> usersViewModel = new List<UserViewModel>();
+            foreach (var item in users)
+            {
+                UserViewModel userViewModel = _mapper.Map<UserViewModel>(item);
+                usersViewModel.Add(userViewModel);
+            }
+            return usersViewModel;
+        }
+
+        private IQueryable<DbUser> GetSortedUsers(string sortOrder, string searchString)
+        {
+            var users = from s in DbContext.Users.Include(s => s.Tasks)
+                        select s;
+            if (!String.IsNullOrEmpty(searchString))
+                if (DateTime.TryParse(searchString, out DateTime check_date))
+                    users = users.Where(s => s.Login.Contains(searchString) || s.AdditionDate.Value.Date.Equals(check_date));
+                else
+                    users = users.Where(s => s.Login.Contains(searchString));
+            switch (sortOrder)
+            {
+                case "login_desc":
+                    users = users.OrderByDescending(s => s.Login);
+                    break;
+                case "date":
+                    users = users.OrderBy(s => s.AdditionDate);
+                    break;
+                case "date_desc":
+                    users = users.OrderByDescending(s => s.AdditionDate);
+                    break;
+                case "tasks":
+                    users = users.OrderBy(s => s.Tasks.Count);
+                    break;
+                case "tasks_desc":
+                    users = users.OrderByDescending(s => s.Tasks.Count);
+                    break;
+                default:
+                    users = users.OrderBy(s => s.Login);
+                    break;
+            }
+            return users;
+        }
     }
 }
