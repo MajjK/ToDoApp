@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
@@ -187,10 +188,9 @@ namespace ToDoApp.Controllers
             return View(userToUpdate);
         }
 
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
-            if (id == null)
+            if (id == null || !User.IsInRole("admin") && id != int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
             {
                 return NotFound();
             }
