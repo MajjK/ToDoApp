@@ -16,18 +16,22 @@ namespace ToDoApp.DB.Model
         public int UserId { get; set; }
 
         [Column("objective")]
+        [Required, StringLength(255)]
         public string Objective { get; set; }
 
         [Column("description")]
+        [StringLength(50)]
         public string Description { get; set; }
 
         [Column("addition_date")]
+        [Required]
         public DateTime? AdditionDate { get; set; }
 
         [Column("closing_date")]
         public DateTime? ClosingDate { get; set; }
 
         [Column("finished")]
+        [Required]
         public bool Finished { get; set; }
 
         public virtual DbUser User { get; set; }

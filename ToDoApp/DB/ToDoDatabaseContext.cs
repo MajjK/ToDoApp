@@ -18,8 +18,22 @@ namespace ToDoApp.DB
 
             modelBuilder.Entity<Model.DbTask>(entity =>
             {
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Tasks);
+                entity.HasOne(a => a.User)
+                    .WithMany(b => b.Tasks);
+                entity.Property(c => c.AdditionDate)
+                .HasDefaultValueSql("date_trunc('minute'::text, CURRENT_TIMESTAMP)");
+                entity.Property(d => d.Finished)
+                .HasDefaultValue(false);
+            });
+
+            modelBuilder.Entity<Model.DbUser>(entity =>
+            {
+                entity.HasIndex(a => a.Login)
+                .IsUnique();
+                entity.Property(b => b.AdditionDate)
+                .HasDefaultValueSql("date_trunc('minute'::text, CURRENT_TIMESTAMP)");
+                entity.Property(c => c.Role)
+                .HasDefaultValue("user");
             });
         }
     }
