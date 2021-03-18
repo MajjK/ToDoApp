@@ -15,6 +15,8 @@ namespace ToDoApp.Services
             CreateMap<TaskViewModel, DbTask>();
             CreateMap<DbUser, UserViewModel>();
             CreateMap<UserViewModel, DbUser>();
+            CreateMap<LoginViewModel, DbUser>();
+            CreateMap<DbUser, LoginViewModel>();
         }
     }
 
