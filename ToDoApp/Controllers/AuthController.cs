@@ -16,7 +16,6 @@ using ToDoApp.ViewModel.Users;
 using ToDoApp.ViewModel;
 using AutoMapper;
 using ToDoApp.Services;
-//Uaktualnianie Cookie Po usunieciu uzytkownika
 
 namespace ToDoApp.Controllers
 {
@@ -64,7 +63,37 @@ namespace ToDoApp.Controllers
             return RedirectToAction("Login", "Auth");
         }
 
-        [Authorize]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register([Bind("Login, Password, ConfirmPassword")] RegisterViewModel registerViewModel)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    registerViewModel.Password = HashProfile.GetSaltedHashPassword(registerViewModel.Password, registerViewModel.PasswordSalt);
+                    DbUser userModel = _mapper.Map<DbUser>(registerViewModel);
+                    DbContext.Add(userModel);
+                    await DbContext.SaveChangesAsync();
+                    SignUserCookie(userModel);
+                    return RedirectToAction("Index", "Tasks");
+                }
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator.");
+            }
+            return View(registerViewModel);
+        }
+
+        [Authorize]//Do Podmiany na RegisterViewModel
         public async Task<IActionResult> Edit()
         {
             var user = await DbContext.Users.FindAsync(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
@@ -76,7 +105,6 @@ namespace ToDoApp.Controllers
             return View(loginViewModel);
         }
 
-        [Authorize]
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost()

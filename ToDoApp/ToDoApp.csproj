@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModel\Auth\" />
     <Folder Include="ViewModel\Users\" />
     <Folder Include="ViewModel\Tasks\" />
   </ItemGroup>
