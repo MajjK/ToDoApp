@@ -46,19 +46,14 @@ namespace ToDoApp.Controllers
             return View(await usersViewModel.ToPagedListAsync(pageNumber, pageSize));
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
-            if (User.IsInRole("user"))
-            {
-                return NotFound();
-            }
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AllowAnonymous]
         public async Task<IActionResult> Create([Bind("Login, Password")] UserViewModel userViewModel)
         {
             try
@@ -69,13 +64,7 @@ namespace ToDoApp.Controllers
                     DbUser userModel = _mapper.Map<DbUser>(userViewModel);
                     DbContext.Add(userModel);
                     await DbContext.SaveChangesAsync();
-                    if (User.IsInRole("admin"))
-                        return RedirectToAction(nameof(Index));
-                    else
-                    {
-                        SignUserCookie(userModel);
-                        return RedirectToAction("Index", "Tasks");
-                    }
+                    return RedirectToAction(nameof(Index));
                 }
             }
             catch (DbUpdateException)
@@ -85,25 +74,6 @@ namespace ToDoApp.Controllers
                     "see your system administrator.");
             }
             return View(userViewModel);
-        }
-
-        private async void SignUserCookie(DbUser user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.Login),
-                new Claim(ClaimTypes.Role, user.Role),
-            };
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = false,
-                ExpiresUtc = DateTime.UtcNow.AddMinutes(60)
-            };
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
         }
 
         [Authorize(Roles = "admin")]
