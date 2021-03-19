@@ -93,7 +93,7 @@ namespace ToDoApp.Controllers
             return View(registerViewModel);
         }
 
-        [Authorize]//Do Podmiany na RegisterViewModel
+        [Authorize]
         public async Task<IActionResult> Edit()
         {
             var user = await DbContext.Users.FindAsync(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
@@ -101,8 +101,8 @@ namespace ToDoApp.Controllers
             {
                 return NotFound();
             }
-            LoginViewModel loginViewModel = _mapper.Map<LoginViewModel>(user);
-            return View(loginViewModel);
+            RegisterViewModel registerViewModel = _mapper.Map<RegisterViewModel>(user);
+            return View(registerViewModel);
         }
 
         [HttpPost, ActionName("Edit")]
@@ -127,8 +127,8 @@ namespace ToDoApp.Controllers
                 }
             }
 
-            LoginViewModel loginViewModel = _mapper.Map<LoginViewModel>(userToUpdate);
-            return View(loginViewModel);
+            RegisterViewModel registerViewModel = _mapper.Map<RegisterViewModel>(userToUpdate);
+            return View(registerViewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
