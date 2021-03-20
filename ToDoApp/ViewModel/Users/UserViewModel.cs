@@ -9,10 +9,10 @@ namespace ToDoApp.ViewModel.Users
     {
         public int UserId { get; set; }
 
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Must be between 5 and 50 characters", MinimumLength = 5)]
         public string Login { get; set; }
 
-        [StringLength(50)]
+        [StringLength(50, ErrorMessage = "Must be between 5 and 50 characters", MinimumLength = 5)]
         public string Password { get; set; }
 
         public string PasswordSalt { get; set; } = HashProfile.GenerateSalt();
