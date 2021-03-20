@@ -51,5 +51,5 @@
 
 <div>
     @Html.ActionLink("Delete", "Delete", "Users", new { id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)) }) |
-    @Html.ActionLink("Back", "Index", "Tasks")
+    <a href="javascript:void(0);" onclick="history.back();">Back to previous page</a>
 </div>

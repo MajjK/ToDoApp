@@ -5,6 +5,7 @@
 }
 
 <h2>Delete</h2>
+@Html.AntiForgeryToken()
 <p class="text-danger">@ViewData["ErrorMessage"]</p>
 <div>
     <h4>Task</h4>
@@ -38,5 +39,5 @@
 
 <div>
     <br />
-    @Html.ActionLink("Back to List", "Index")
+    <a href="javascript:void(0);" onclick="history.back();">Back to previous page</a>
 </div>

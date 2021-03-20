@@ -10,7 +10,8 @@ using ToDoApp.DB;
 using ToDoApp.DB.Model;
 using ToDoApp.ViewModel.Tasks;
 using System.Security.Claims;
-
+//returnUrl w Delete nie dziala
+//umiejscowanie createtask dla uzytkownika czy nie lepiej w details
 
 namespace ToDoApp.Controllers
 {
@@ -64,7 +65,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId, Objective, Description, ClosingDate")] TaskViewModel taskViewModel)
+        public async Task<IActionResult> Create([Bind("UserId, Objective, Description, ClosingDate")] TaskViewModel taskViewModel, string? returnUrl = null)
         {
             try
             {
@@ -73,7 +74,10 @@ namespace ToDoApp.Controllers
                     DbTask taskModel = _mapper.Map<DbTask>(taskViewModel);
                     DbContext.Add(taskModel);
                     await DbContext.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    if (!String.IsNullOrEmpty(returnUrl))
+                        return Redirect(returnUrl);
+                    else
+                        return RedirectToAction("Index");
                 }
             }
             catch (DbUpdateException)
@@ -125,7 +129,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(int? id)
+        public async Task<IActionResult> EditPost(int? id, string? returnUrl = null)
         {
             if (id == null)
             {
@@ -139,7 +143,10 @@ namespace ToDoApp.Controllers
                 try
                 {
                     await DbContext.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    if (!String.IsNullOrEmpty(returnUrl))
+                        return Redirect(returnUrl);
+                    else
+                        return RedirectToAction("Index");
                 }
                 catch (DbUpdateException)
                 {
@@ -153,7 +160,7 @@ namespace ToDoApp.Controllers
             return View(taskViewModel);
         }
 
-        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
+        public async Task<IActionResult> Delete(int? id, string? returnUrl = null, bool? saveChangesError = false)
         {
             if (id == null)
             {
@@ -178,19 +185,22 @@ namespace ToDoApp.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string? returnUrl = null)
         {
             var task = await DbContext.Tasks.FindAsync(id);
             if (task == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             try
             {
                 DbContext.Tasks.Remove(task);
                 await DbContext.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (!String.IsNullOrEmpty(returnUrl))
+                    return Redirect(returnUrl);
+                else
+                    return RedirectToAction("Index");
             }
             catch (DbUpdateException)
             {
