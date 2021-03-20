@@ -11,7 +11,7 @@
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal">
-        <h4>User</h4>
+        <h4>User : @Model.Login</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.UserId)
@@ -42,5 +42,6 @@
 }
 
 <div>
+    @Html.ActionLink("Add Task", "Create", "Tasks", new { id = Model.UserId }) |
     @Html.ActionLink("Back to List", "Index")
 </div>
