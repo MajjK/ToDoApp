@@ -10,8 +10,6 @@ using ToDoApp.DB;
 using ToDoApp.DB.Model;
 using ToDoApp.ViewModel.Tasks;
 using System.Security.Claims;
-//returnUrl w Delete nie dziala
-//umiejscowanie createtask dla uzytkownika czy nie lepiej w details
 
 namespace ToDoApp.Controllers
 {
@@ -74,10 +72,7 @@ namespace ToDoApp.Controllers
                     DbTask taskModel = _mapper.Map<DbTask>(taskViewModel);
                     DbContext.Add(taskModel);
                     await DbContext.SaveChangesAsync();
-                    if (!String.IsNullOrEmpty(returnUrl))
-                        return Redirect(returnUrl);
-                    else
-                        return RedirectToAction("Index");
+                    return RedirectToActionOrReturnUrl("Index", returnUrl);
                 }
             }
             catch (DbUpdateException)
@@ -143,10 +138,7 @@ namespace ToDoApp.Controllers
                 try
                 {
                     await DbContext.SaveChangesAsync();
-                    if (!String.IsNullOrEmpty(returnUrl))
-                        return Redirect(returnUrl);
-                    else
-                        return RedirectToAction("Index");
+                    return RedirectToActionOrReturnUrl("Index", returnUrl);
                 }
                 catch (DbUpdateException)
                 {
@@ -160,7 +152,7 @@ namespace ToDoApp.Controllers
             return View(taskViewModel);
         }
 
-        public async Task<IActionResult> Delete(int? id, string? returnUrl = null, bool? saveChangesError = false)
+        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
         {
             if (id == null)
             {
@@ -197,10 +189,7 @@ namespace ToDoApp.Controllers
             {
                 DbContext.Tasks.Remove(task);
                 await DbContext.SaveChangesAsync();
-                if (!String.IsNullOrEmpty(returnUrl))
-                    return Redirect(returnUrl);
-                else
-                    return RedirectToAction("Index");
+                return RedirectToActionOrReturnUrl("Index", returnUrl);
             }
             catch (DbUpdateException)
             {
@@ -252,6 +241,14 @@ namespace ToDoApp.Controllers
                     break;
             }
             return tasks;
+        }
+
+        private IActionResult RedirectToActionOrReturnUrl(string Action, string? returnUrl = null)
+        {
+            if (!String.IsNullOrEmpty(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction(Action);
         }
     }
 }

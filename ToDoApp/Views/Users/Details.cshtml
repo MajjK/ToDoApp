@@ -63,5 +63,6 @@
 </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.UserId }) |
+    @Html.ActionLink("Add Task", "Create", "Tasks", new { id = Model.UserId, returnUrl = @Context.Request.GetDisplayUrl() }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
