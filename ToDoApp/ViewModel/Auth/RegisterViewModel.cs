@@ -22,5 +22,9 @@ namespace ToDoApp.ViewModel.Auth
 
         public string PasswordSalt { get; set; } = HashProfile.GenerateSalt();
 
+        public string Email { get; set; }
+
+        public bool EmailConfirmed { get; set; } = false;
+
     }
 }

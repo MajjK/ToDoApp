@@ -22,6 +22,10 @@ namespace ToDoApp.ViewModel.Users
 
         public string Role { get; set; } = "user";
 
+        public string Email { get; set; }
+
+        public bool EmailConfirmed { get; set; } = true;
+
         public virtual ICollection<Tasks.TaskViewModel> Tasks { get; set; }
     }
 }

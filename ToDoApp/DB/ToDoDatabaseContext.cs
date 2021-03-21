@@ -34,6 +34,8 @@ namespace ToDoApp.DB
                 .HasDefaultValueSql("date_trunc('minute'::text, CURRENT_TIMESTAMP)");
                 entity.Property(c => c.Role)
                 .HasDefaultValue("user");
+                entity.Property(d => d.EmailConfirmed)
+                .HasDefaultValue(false);
             });
         }
     }

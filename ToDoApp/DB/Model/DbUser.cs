@@ -32,6 +32,14 @@ namespace ToDoApp.DB.Model
         [Required]
         public string Role { get; set; }
 
+        [Column("email")]
+        [Required]
+        public string Email { get; set; }
+
+        [Column("email_confirmed")]
+        [Required]
+        public bool EmailConfirmed { get; set; }
+
         public virtual ICollection<DbTask> Tasks { get; set; }
     }
 }
