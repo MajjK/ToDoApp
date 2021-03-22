@@ -15,40 +15,40 @@ namespace ToDoAppTests.Services
         }
 
         [Fact]
-        private void TestGetSaltedHashPasswordDifferentSalts()
+        private void TestGetSaltedHashDataDifferentSalts()
         {
             string password = "ultra_safe_P455w0rD";
             string firstSalt = HashProfile.GenerateSalt();
             string secondSalt = HashProfile.GenerateSalt();
 
-            string firstSaltedHashPassword = HashProfile.GetSaltedHashPassword(password, firstSalt);
-            string secondSaltedHashPassword = HashProfile.GetSaltedHashPassword(password, secondSalt);
+            string firstSaltedHashPassword = HashProfile.GetSaltedHashData(password, firstSalt);
+            string secondSaltedHashPassword = HashProfile.GetSaltedHashData(password, secondSalt);
 
             Assert.NotEqual(firstSaltedHashPassword, secondSaltedHashPassword);
 
         }
 
         [Fact]
-        private void TestGetSaltedHashPasswordDifferentPasswords()
+        private void TestGetSaltedHashDataDifferentPasswords()
         {
             string firstPassword = "ultra_safe_P455w0rD";
             string secondPassword = "second_safe_P455w0rD";
             string salt = HashProfile.GenerateSalt();
 
-            string firstSaltedHashPassword = HashProfile.GetSaltedHashPassword(firstPassword, salt);
-            string secondSaltedHashPassword = HashProfile.GetSaltedHashPassword(secondPassword, salt);
+            string firstSaltedHashPassword = HashProfile.GetSaltedHashData(firstPassword, salt);
+            string secondSaltedHashPassword = HashProfile.GetSaltedHashData(secondPassword, salt);
 
             Assert.NotEqual(firstSaltedHashPassword, secondSaltedHashPassword);
         }
 
         [Fact]
-        private void TestGetSaltedHashPassword()
+        private void TestGetSaltedHashData()
         {
             string password = "ultra_safe_P455w0rD";
             string salt = HashProfile.GenerateSalt();
 
-            string firstSaltedHashPassword = HashProfile.GetSaltedHashPassword(password, salt);
-            string secondSaltedHashPassword = HashProfile.GetSaltedHashPassword(password, salt);
+            string firstSaltedHashPassword = HashProfile.GetSaltedHashData(password, salt);
+            string secondSaltedHashPassword = HashProfile.GetSaltedHashData(password, salt);
 
             Assert.Equal(firstSaltedHashPassword, secondSaltedHashPassword);
         }
@@ -59,7 +59,7 @@ namespace ToDoAppTests.Services
             string password = "ultra_safe_P455w0rD";
             string correctSalt = HashProfile.GenerateSalt();
             string incorrectSalt = HashProfile.GenerateSalt();
-            string hashedPassword = HashProfile.GetSaltedHashPassword(password, correctSalt);
+            string hashedPassword = HashProfile.GetSaltedHashData(password, correctSalt);
 
             Assert.False(HashProfile.ValidatePasswords(password, hashedPassword, incorrectSalt));
         }
@@ -70,7 +70,7 @@ namespace ToDoAppTests.Services
             string password = "ultra_safe_P455w0rD";
             string secondPassword = "second_safe_P455w0rD";
             string salt = HashProfile.GenerateSalt();
-            string hashedPassword = HashProfile.GetSaltedHashPassword(password, salt);
+            string hashedPassword = HashProfile.GetSaltedHashData(password, salt);
 
             Assert.False(HashProfile.ValidatePasswords(secondPassword, hashedPassword, salt));
         }
@@ -80,7 +80,7 @@ namespace ToDoAppTests.Services
         {
             string password = "ultra_safe_P455w0rD";
             string salt = HashProfile.GenerateSalt();
-            string hashedPassword = HashProfile.GetSaltedHashPassword(password, salt);
+            string hashedPassword = HashProfile.GetSaltedHashData(password, salt);
 
             Assert.True(HashProfile.ValidatePasswords(password, hashedPassword, salt));
         }

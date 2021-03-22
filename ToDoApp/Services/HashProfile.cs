@@ -23,7 +23,7 @@ namespace ToDoApp.Services
             return Encoding.UTF8.GetString(buff);
         }
 
-        public static string GetSaltedHashPassword(string password, string salt)
+        public static string GetSaltedHashData(string password, string salt)
         {
             byte[] saltedHashPassword = GenerateSaltedHash(Encoding.UTF8.GetBytes(password), Encoding.UTF8.GetBytes(salt));
             return Convert.ToBase64String(saltedHashPassword);
