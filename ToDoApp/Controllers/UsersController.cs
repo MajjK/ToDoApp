@@ -54,7 +54,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Login, Password")] UserViewModel userViewModel)
+        public async Task<IActionResult> Create([Bind("Login, Password, Email")] UserViewModel userViewModel)
         {
             try
             {
