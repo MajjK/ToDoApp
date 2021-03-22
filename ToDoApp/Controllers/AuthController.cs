@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using ToDoApp.DB.Model;
 using ToDoApp.DB;
 using ToDoApp.ViewModel.Auth;
-using ToDoApp.ViewModel.Users;
 using ToDoApp.ViewModel;
 using AutoMapper;
 using ToDoApp.Services;
@@ -52,6 +51,11 @@ namespace ToDoApp.Controllers
                 ModelState.AddModelError("", "Wrong login or password");
                 return View("Login", loginViewModel);
             }
+            if (!user.EmailConfirmed)
+            {
+                ModelState.AddModelError("", "Verify your email address");
+                return View("Login", loginViewModel);
+            }
 
             SignUserCookie(user);
             return RedirectToAction("Index", "Tasks");
@@ -70,18 +74,25 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Login, Password, ConfirmPassword")] RegisterViewModel registerViewModel)
+        public async Task<IActionResult> Register([Bind("Login, Password, ConfirmPassword, Email")] RegisterViewModel registerViewModel)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    registerViewModel.Password = HashProfile.GetSaltedHashPassword(registerViewModel.Password, registerViewModel.PasswordSalt);
+                    registerViewModel.Password = HashProfile.GetSaltedHashData(registerViewModel.Password, registerViewModel.PasswordSalt);
                     DbUser userModel = _mapper.Map<DbUser>(registerViewModel);
                     DbContext.Add(userModel);
                     await DbContext.SaveChangesAsync();
-                    SignUserCookie(userModel);
-                    return RedirectToAction("Index", "Tasks");
+                    if (SendConfirmationEmail(userModel))
+                        return RedirectToAction("Login");
+                    else
+                    {
+                        ModelState.AddModelError("", "Unable to send confirmation e-mail. ");
+                        DbContext.Users.Remove(userModel);
+                        await DbContext.SaveChangesAsync();
+                        return View(registerViewModel);
+                    }
                 }
             }
             catch (DbUpdateException)
@@ -91,6 +102,23 @@ namespace ToDoApp.Controllers
                     "see your system administrator.");
             }
             return View(registerViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        {
+            var user = await DbContext.Users.FirstOrDefaultAsync(s => s.Email == email);
+            if (user == null)
+                return View("Error");
+
+            if (token == CreateConfirmationToken(user))
+            {
+                user.EmailConfirmed = true;
+                await DbContext.SaveChangesAsync();
+                return View("ConfirmEmail");
+            }
+            else
+                return View("Error");
         }
 
         [Authorize]
@@ -110,11 +138,11 @@ namespace ToDoApp.Controllers
         public async Task<IActionResult> EditPost()
         {
             var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
-            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Login, s => s.Password))
+            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Login, s => s.Email, s => s.Password))
             {
                 try
                 {
-                    userToUpdate.Password = HashProfile.GetSaltedHashPassword(userToUpdate.Password, userToUpdate.PasswordSalt);
+                    userToUpdate.Password = HashProfile.GetSaltedHashData(userToUpdate.Password, userToUpdate.PasswordSalt);
                     await DbContext.SaveChangesAsync();
                     UpdateUserCookie(userToUpdate);
                     return RedirectToAction("Index", "Tasks");
@@ -160,6 +188,20 @@ namespace ToDoApp.Controllers
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
+        }
+
+        private bool SendConfirmationEmail(DbUser user)
+        {
+            string token = CreateConfirmationToken(user);
+            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Auth", new { token, email = user.Email }, Request.Scheme);
+            EmailProfile emailHelper = new EmailProfile();
+            return emailHelper.SendEmail(user.Email, confirmationLink, "ToDoApp - Confirm your email");
+        }
+
+        private string CreateConfirmationToken(DbUser user)
+        {
+            string token = HashProfile.GetSaltedHashData(user.Email, user.PasswordSalt);
+            return token;
         }
     }
 }
