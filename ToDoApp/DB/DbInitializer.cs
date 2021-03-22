@@ -20,9 +20,11 @@ namespace ToDoApp.DB
             var users = new DbUser[]
             {
             new DbUser{UserId = 1, Login = "postgres", Password = "HcaVRCH9ST0+WePw59Qv5ghRuB1M14a/M73xT+BPxHYVtOSkZ1MG38NnYTECfBCM0duVC4+hnNEVTXVWDPxCeg==",
-                PasswordSalt = "��K��3���I<e	0n¼��gy�A�n*(b�Q�,1�A`���Q@5l��B�1����o", AdditionDate = DateTime.Parse("2021-03-24 00:00:00"), Role = "admin"},
+                PasswordSalt = "��K��3���I<e	0n¼��gy�A�n*(b�Q�,1�A`���Q@5l��B�1����o", AdditionDate = DateTime.Parse("2021-03-24 00:00:00"), Role = "admin",
+                Email = "test@gmail.com", EmailConfirmed = true },
             new DbUser{UserId = 2, Login = "postgres2", Password = "Q9A/L2XTa9kOjCU2QnQ1Dt+YLGv0C7iqjsdoW04J+RkVuwbwr+Qy8ZweU+JTamVBy+WDxs1CBCovlqN+0rXDtw==", 
-                PasswordSalt = "3oY�-S7���Ѽ��'�A�!NɅ����Oi��8�P^}g�	�=´��H����:X�Y", AdditionDate = DateTime.Parse("2021-03-24 00:00:00"), Role = "user"},
+                PasswordSalt = "3oY�-S7���Ѽ��'�A�!NɅ����Oi��8�P^}g�	�=´��H����:X�Y", AdditionDate = DateTime.Parse("2021-03-24 00:00:00"), Role = "user",
+                Email = "test@gmail.com", EmailConfirmed = true }
             };
             foreach (DbUser user in users)
             {
