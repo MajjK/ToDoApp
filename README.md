@@ -7,12 +7,22 @@ The project is a web application which operates on an existing database(based on
 <p align="center"> 
 <img src="./img/register_view.png">
 </p>
+<<<<<<< HEAD
 <br/><br/>
+=======
+
+>>>>>>> 322d57e2c20910d693ebb2253c4af20141eb802a
 <div align="center"> Tasks View: </div>
 <p align="center"> 
 <img src="./img/tasks_view.png">
 </p>
 <br/><br/>
+<div align="center"> User Details View (Admin Access Only): </div>
+<p align="center"> 
+<img src="./img/admin_access_view.png">
+</p>
+
+
 <div align="center"> User Details View (Admin Access Only): </div>
 <p align="center"> 
 <img src="./img/admin_access_view.png">
