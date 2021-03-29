@@ -37,3 +37,15 @@ The project is a web application which operates on an existing database(based on
 * Create, read, update and delete existing database entities.
 * Display tasks in a structured manner - with paging, sorting and searching.
 * Different roles assigned to users (administrators and regular users).
+
+## Setup
+Clone the repo and compile project solution in Visual Studio 2019.
+
+You can also build and run application in a docker container. To do that :
+1. Open a command prompt and navigate to your project folder.
+2. Use the following commands to build and run your Docker image:
+
+$ docker build -t todoapp .
+$ docker run -d -p 8080:80 --name myapp todoapp
+
+3. Go to localhost:8080 to access your app in a web browser.
