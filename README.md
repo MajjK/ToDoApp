@@ -45,9 +45,9 @@ The project is a web application which operates on an existing database(based on
 1. Open a command prompt and navigate to your project folder.
 2. Use the following commands to build and run your Docker image:
 
-'''
+```
 $ docker build -t todoapp .
 $ docker run -d -p 8080:80 --name myapp todoapp
-'''
+```
 
 3. Go to localhost:8080 to access your app in a web browser.
