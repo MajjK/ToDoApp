@@ -11,12 +11,9 @@ namespace ToDoApp.Services
     {
         public MappingProfile()
         {
-            CreateMap<DbTask, TaskViewModel>();
-            CreateMap<TaskViewModel, DbTask>();
-            CreateMap<DbUser, UserViewModel>();
-            CreateMap<UserViewModel, DbUser>();
-            CreateMap<RegisterViewModel, DbUser>();
-            CreateMap<DbUser, RegisterViewModel>();
+            CreateMap<DbTask, TaskViewModel>().ReverseMap();
+            CreateMap<DbUser, UserViewModel>().ReverseMap();
+            CreateMap<RegisterViewModel, DbUser>().ReverseMap();
         }
     }
 

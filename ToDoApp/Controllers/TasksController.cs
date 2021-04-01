@@ -63,7 +63,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId, Objective, Description, ClosingDate")] TaskViewModel taskViewModel, string? returnUrl = null)
+        public async Task<IActionResult> Create([Bind("UserId, Objective, Description, ClosingDate")] TaskViewModel taskViewModel, string returnUrl = null)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost(int? id, string? returnUrl = null)
+        public async Task<IActionResult> EditPost(int? id, string returnUrl = null)
         {
             if (id == null)
             {
@@ -177,7 +177,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, string? returnUrl = null)
+        public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl = null)
         {
             var task = await DbContext.Tasks.FindAsync(id);
             if (task == null)
@@ -243,7 +243,7 @@ namespace ToDoApp.Controllers
             return tasks;
         }
 
-        private IActionResult RedirectToActionOrReturnUrl(string Action, string? returnUrl = null)
+        private IActionResult RedirectToActionOrReturnUrl(string Action, string returnUrl = null)
         {
             if (!String.IsNullOrEmpty(returnUrl))
                 return Redirect(returnUrl);

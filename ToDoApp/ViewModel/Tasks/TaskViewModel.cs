@@ -14,7 +14,7 @@ namespace ToDoApp.ViewModel.Tasks
         public string Objective { get; set; }
 
         [StringLength(255)]
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         [Display(Name = "Addition Date")]
         public DateTime? AdditionDate { get; set; } = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
