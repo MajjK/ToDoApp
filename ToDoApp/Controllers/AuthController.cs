@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.DB.Model;
 using ToDoApp.DB;
@@ -194,8 +195,7 @@ namespace ToDoApp.Controllers
         {
             string token = CreateConfirmationToken(user);
             var confirmationLink = Url.Action(nameof(ConfirmEmail), "Auth", new { token, email = user.Email }, Request.Scheme);
-            EmailProfile emailHelper = new EmailProfile();
-            return emailHelper.SendEmail(user.Email, confirmationLink, "ToDoApp - Confirm your email");
+            return EmailProfile.SendEmail(user.Email, confirmationLink, "ToDoApp - Confirm your email");
         }
 
         private string CreateConfirmationToken(DbUser user)

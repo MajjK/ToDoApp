@@ -1,16 +1,17 @@
-﻿using System.Net.Mail;
+﻿using System;
+using System.Net.Mail;
+using Microsoft.Extensions.Configuration;
 
 namespace ToDoApp.Services
 {
-    public class EmailProfile
+    public static class EmailProfile
     {
-        private string ServerEmail = "example@gmail.com";
-        private string ServerEmailPassword = "example";
+        public static IConfiguration Configuration;
 
-        public bool SendEmail(string userEmail, string confirmationLink, string subject)
+        public static bool SendEmail(string userEmail, string confirmationLink, string subject)
         {
             MailMessage mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress(ServerEmail);
+            mailMessage.From = new MailAddress(Configuration["EmailConfig:ServerEmail"]);
             mailMessage.To.Add(new MailAddress(userEmail));
 
             mailMessage.Subject = subject;
@@ -19,9 +20,10 @@ namespace ToDoApp.Services
 
             SmtpClient client = new SmtpClient
             {
-                Credentials = new System.Net.NetworkCredential(ServerEmail, ServerEmailPassword),
-                Host = "smtp.gmail.com",
-                Port = 587,
+                Credentials = new System.Net.NetworkCredential(Configuration["EmailConfig:ServerEmail"],
+                    Configuration["EmailConfig:ServerEmailPassword"]),
+                Host = Configuration["EmailConfig:Host"],
+                Port = Int32.Parse(Configuration["EmailConfig:Port"]),
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 Timeout = 20000

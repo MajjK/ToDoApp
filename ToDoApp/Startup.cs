@@ -23,6 +23,7 @@ namespace ToDoApp
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Services.EmailProfile.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
