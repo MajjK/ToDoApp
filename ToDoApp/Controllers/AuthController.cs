@@ -122,6 +122,11 @@ namespace ToDoApp.Controllers
                 return View("Error");
         }
 
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
         [Authorize]
         public async Task<IActionResult> Edit()
         {
