@@ -11,7 +11,7 @@ namespace ToDoApp.Services
         public static bool SendEmail(string userEmail, string confirmationLink, string subject)
         {
             MailMessage mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress(Configuration["EmailConfig:ServerEmail"]);
+            mailMessage.From = new MailAddress(Configuration["SecretConfig:ServerEmail"]);
             mailMessage.To.Add(new MailAddress(userEmail));
 
             mailMessage.Subject = subject;
@@ -20,8 +20,8 @@ namespace ToDoApp.Services
 
             SmtpClient client = new SmtpClient
             {
-                Credentials = new System.Net.NetworkCredential(Configuration["EmailConfig:ServerEmail"],
-                    Configuration["EmailConfig:ServerEmailPassword"]),
+                Credentials = new System.Net.NetworkCredential(Configuration["SecretConfig:ServerEmail"],
+                    Configuration["SecretConfig:ServerEmailPassword"]),
                 Host = Configuration["EmailConfig:Host"],
                 Port = Int32.Parse(Configuration["EmailConfig:Port"]),
                 EnableSsl = true,
