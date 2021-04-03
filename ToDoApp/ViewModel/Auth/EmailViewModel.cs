@@ -2,7 +2,7 @@
 
 namespace ToDoApp.ViewModel.Auth
 {
-    public class ForgotPasswordViewModel
+    public class EmailViewModel
     {
         [Required]
         [DataType(DataType.EmailAddress)]

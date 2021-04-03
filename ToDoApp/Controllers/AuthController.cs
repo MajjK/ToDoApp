@@ -112,7 +112,7 @@ namespace ToDoApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel emailViewModel)
+        public async Task<IActionResult> ForgotPassword(EmailViewModel emailViewModel)
         {
             if (!ModelState.IsValid)
             {
