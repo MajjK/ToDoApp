@@ -86,7 +86,7 @@ namespace ToDoApp.Controllers
                     DbContext.Add(userModel);
                     await DbContext.SaveChangesAsync();
                     if (SendConfirmationEmail(userModel))
-                        return RedirectToAction("Login");
+                        return RedirectToAction("Login", "Auth");
                     else
                     {
                         ModelState.AddModelError("", "Unable to send confirmation e-mail. ");
@@ -105,12 +105,83 @@ namespace ToDoApp.Controllers
             return View(registerViewModel);
         }
 
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel emailViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("ForgotPassword", emailViewModel);
+            }
+
+            DbUser user = await DbContext.Users.Where(s => s.Email == emailViewModel.Email).SingleOrDefaultAsync();
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Wrong email address");
+                return View("ForgotPassword", emailViewModel);
+            }
+            if (SendPasswordRecoveryEmail(user))
+                return RedirectToAction("Login", "Auth");
+            else
+            {
+                ModelState.AddModelError("", "Unable to send password recovery e-mail. ");
+                return View("ForgotPassword", emailViewModel);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditPassword(string token, int id)
+        {
+            var user = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == id);
+            if (user == null)
+                return NotFound();
+
+            if (token == CreateConfirmationToken(user))
+            {
+                PasswordViewModel passwordViewModel = _mapper.Map<PasswordViewModel>(user);
+                return View(passwordViewModel);
+            }
+            else
+                return NotFound();
+        }
+
+        [HttpPost, ActionName("EditPassword")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPasswordPost(string token, int id)
+        {
+            var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == id);
+            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Password))
+            {
+                try
+                {
+                    userToUpdate.Password = HashProfile.GetSaltedHashData(userToUpdate.Password, userToUpdate.PasswordSalt);
+                    await DbContext.SaveChangesAsync();
+                    return RedirectToAction("Login", "Auth");
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists, " +
+                        "see your system administrator.");
+                }
+            }
+
+            PasswordViewModel passwordViewModel = _mapper.Map<PasswordViewModel>(userToUpdate);
+            return View(passwordViewModel);
+        }
+
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
             var user = await DbContext.Users.FirstOrDefaultAsync(s => s.Email == email);
             if (user == null)
-                return View("Error");
+                return NotFound();
 
             if (token == CreateConfirmationToken(user))
             {
@@ -119,12 +190,7 @@ namespace ToDoApp.Controllers
                 return View("ConfirmEmail");
             }
             else
-                return View("Error");
-        }
-
-        public IActionResult ForgotPassword()
-        {
-            return View();
+                return NotFound();
         }
 
         [Authorize]
@@ -194,6 +260,13 @@ namespace ToDoApp.Controllers
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
+        }
+
+        private bool SendPasswordRecoveryEmail(DbUser user)
+        {
+            string token = CreateConfirmationToken(user);
+            var confirmationLink = Url.Action(nameof(EditPassword), "Auth", new { token, id = user.UserId }, Request.Scheme);
+            return EmailProfile.SendEmail(user.Email, confirmationLink, "ToDoApp - Change your password");
         }
 
         private bool SendConfirmationEmail(DbUser user)
