@@ -74,7 +74,7 @@ namespace ToDoApp
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Auth}/{action=Login}/{id?}");
+                    pattern: "{controller=Tasks}/{action=Index}/{id?}");
             });
         }
     }
