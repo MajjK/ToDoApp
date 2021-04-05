@@ -176,7 +176,7 @@ namespace ToDoApp.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("Login")
+                    b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("Users");
@@ -197,7 +197,7 @@ namespace ToDoApp.Migrations
                         {
                             UserId = 2,
                             AdditionDate = new DateTime(2021, 3, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "test@gmail.com",
+                            Email = "test2@gmail.com",
                             EmailConfirmed = true,
                             Login = "postgres2",
                             Password = "Q9A/L2XTa9kOjCU2QnQ1Dt+YLGv0C7iqjsdoW04J+RkVuwbwr+Qy8ZweU+JTamVBy+WDxs1CBCovlqN+0rXDtw==",

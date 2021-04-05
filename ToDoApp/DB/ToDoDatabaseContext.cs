@@ -29,7 +29,7 @@ namespace ToDoApp.DB
 
             modelBuilder.Entity<Model.DbUser>(entity =>
             {
-                entity.HasIndex(a => a.Login)
+                entity.HasIndex(a => a.Email)
                 .IsUnique();
                 entity.Property(b => b.AdditionDate)
                 .HasDefaultValueSql("date_trunc('minute'::text, CURRENT_TIMESTAMP)");
@@ -46,7 +46,7 @@ namespace ToDoApp.DB
                     Email = "test@gmail.com", EmailConfirmed = true },
                 new Model.DbUser{UserId = 2, Login = "postgres2", Password = "Q9A/L2XTa9kOjCU2QnQ1Dt+YLGv0C7iqjsdoW04J+RkVuwbwr+Qy8ZweU+JTamVBy+WDxs1CBCovlqN+0rXDtw==", 
                     PasswordSalt = "3oY�-S7���Ѽ��'�A�!NɅ����Oi��8�P^}g�	�=´��H����:X�Y", AdditionDate = DateTime.Parse("2021-03-24 00:00:00"), Role = "user",
-                    Email = "test@gmail.com", EmailConfirmed = true }
+                    Email = "test2@gmail.com", EmailConfirmed = true }
                 );
 
             modelBuilder.Entity<Model.DbTask>().HasData
