@@ -153,26 +153,28 @@ namespace ToDoApp.Controllers
 
         [HttpPost, ActionName("EditPassword")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPasswordPost(string token, int id)
+        public async Task<IActionResult> EditPasswordPost(PasswordViewModel passwordViewModel, string token, int id)
         {
-            var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == id);
-            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Password))
+            if (ModelState.IsValid)
             {
-                try
+                var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == id);
+                if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Password))
                 {
-                    userToUpdate.Password = HashProfile.GetSaltedHashData(userToUpdate.Password, userToUpdate.PasswordSalt);
-                    await DbContext.SaveChangesAsync();
-                    return RedirectToAction("Login", "Auth");
-                }
-                catch (DbUpdateException)
-                {
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists, " +
-                        "see your system administrator.");
+                    try
+                    {
+                        userToUpdate.Password = HashProfile.GetSaltedHashData(userToUpdate.Password, userToUpdate.PasswordSalt);
+                        await DbContext.SaveChangesAsync();
+                        return RedirectToAction("Login", "Auth");
+                    }
+                    catch (DbUpdateException)
+                    {
+                        ModelState.AddModelError("", "Unable to save changes. " +
+                            "Try again, and if the problem persists, " +
+                            "see your system administrator.");
+                    }
                 }
             }
 
-            PasswordViewModel passwordViewModel = _mapper.Map<PasswordViewModel>(userToUpdate);
             return View(passwordViewModel);
         }
 
@@ -207,27 +209,29 @@ namespace ToDoApp.Controllers
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPost()
+        public async Task<IActionResult> EditPost(RegisterViewModel registerViewModel)
         {
-            var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
-            if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Login, s => s.Email, s => s.Password))
+            if (ModelState.IsValid)
             {
-                try
+                var userToUpdate = await DbContext.Users.FirstOrDefaultAsync(s => s.UserId == int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+                if (await TryUpdateModelAsync<DbUser>(userToUpdate, "", s => s.Login, s => s.Email, s => s.Password))
                 {
-                    userToUpdate.Password = HashProfile.GetSaltedHashData(userToUpdate.Password, userToUpdate.PasswordSalt);
-                    await DbContext.SaveChangesAsync();
-                    UpdateUserCookie(userToUpdate);
-                    return RedirectToAction("Index", "Tasks");
-                }
-                catch (DbUpdateException)
-                {
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists, " +
-                        "see your system administrator.");
+                    try
+                    {
+                        userToUpdate.Password = HashProfile.GetSaltedHashData(userToUpdate.Password, userToUpdate.PasswordSalt);
+                        await DbContext.SaveChangesAsync();
+                        UpdateUserCookie(userToUpdate);
+                        return RedirectToAction("Index", "Tasks");
+                    }
+                    catch (DbUpdateException)
+                    {
+                        ModelState.AddModelError("", "Unable to save changes. " +
+                            "Try again, and if the problem persists, " +
+                            "see your system administrator.");
+                    }
                 }
             }
 
-            RegisterViewModel registerViewModel = _mapper.Map<RegisterViewModel>(userToUpdate);
             return View(registerViewModel);
         }
 

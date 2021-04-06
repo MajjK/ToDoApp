@@ -27,6 +27,7 @@ namespace ToDoApp.ViewModel.Users
         [Required]
         [DataType(DataType.EmailAddress)]
         [EmailAddress]
+        [EmailUnique]
         public string Email { get; set; }
 
         public bool EmailConfirmed { get; set; } = true;
