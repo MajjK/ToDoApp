@@ -142,7 +142,7 @@ namespace ToDoApp.Controllers
             if (user == null)
                 return NotFound();
 
-            if (token == CreateConfirmationToken(user))
+            if (token == CreateUserToken(user))
             {
                 PasswordViewModel passwordViewModel = _mapper.Map<PasswordViewModel>(user);
                 return View(passwordViewModel);
@@ -185,7 +185,7 @@ namespace ToDoApp.Controllers
             if (user == null)
                 return NotFound();
 
-            if (token == CreateConfirmationToken(user))
+            if (token == CreateUserToken(user))
             {
                 user.EmailConfirmed = true;
                 await DbContext.SaveChangesAsync();
@@ -268,19 +268,19 @@ namespace ToDoApp.Controllers
 
         private bool SendPasswordRecoveryEmail(DbUser user)
         {
-            string token = CreateConfirmationToken(user);
+            string token = CreateUserToken(user);
             var confirmationLink = Url.Action(nameof(EditPassword), "Auth", new { token, id = user.UserId }, Request.Scheme);
             return EmailProfile.SendEmail(user.Email, confirmationLink, "ToDoApp - Change your password");
         }
 
         private bool SendConfirmationEmail(DbUser user)
         {
-            string token = CreateConfirmationToken(user);
+            string token = CreateUserToken(user);
             var confirmationLink = Url.Action(nameof(ConfirmEmail), "Auth", new { token, email = user.Email }, Request.Scheme);
             return EmailProfile.SendEmail(user.Email, confirmationLink, "ToDoApp - Confirm your email");
         }
 
-        private string CreateConfirmationToken(DbUser user)
+        private string CreateUserToken(DbUser user)
         {
             string token = HashProfile.GetSaltedHashData(user.Email, user.PasswordSalt);
             return token;
