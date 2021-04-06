@@ -58,7 +58,7 @@ namespace ToDoApp.Controllers
                 return View("Login", loginViewModel);
             }
 
-            SignUserCookie(user);
+            CookieProfile.SignUserCookie(HttpContext, user);
             return RedirectToAction("Index", "Tasks");
         }
 
@@ -220,7 +220,7 @@ namespace ToDoApp.Controllers
                     {
                         userToUpdate.Password = HashProfile.GetSaltedHashData(userToUpdate.Password, userToUpdate.PasswordSalt);
                         await DbContext.SaveChangesAsync();
-                        UpdateUserCookie(userToUpdate);
+                        CookieProfile.UpdateUserCookie(HttpContext, userToUpdate);
                         return RedirectToAction("Index", "Tasks");
                     }
                     catch (DbUpdateException)
@@ -239,31 +239,6 @@ namespace ToDoApp.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        private async void UpdateUserCookie(DbUser user)
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            SignUserCookie(user);
-        }
-
-        private async void SignUserCookie(DbUser user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.Login),
-                new Claim(ClaimTypes.Role, user.Role),
-            };
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = false,
-                ExpiresUtc = DateTime.UtcNow.AddMinutes(60)
-            };
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProperties);
         }
 
         private bool SendPasswordRecoveryEmail(DbUser user)
